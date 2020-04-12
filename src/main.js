@@ -3,6 +3,7 @@ const headerElement = document.querySelector(`.page-header`);
 const headerTripMainElement = headerElement.querySelector(`.trip-main`);
 const headerTripControlsElement = headerElement.querySelector(`.trip-controls`);
 const mainTripEventsElement = document.querySelector(`.trip-events`);
+// const mainTripDaysItemElement = document.querySelector('.trip-days');
 
 import {createInfoContainerTemplate, createTripDaysList} from './components/create-site-basic-block.js';
 import {createInfoTripTemplate} from './components/create-site-header-trip-info.js';
@@ -10,8 +11,12 @@ import {createCostTripTemplate} from './components/create-site-header-trip-cost.
 import {createMenuTripTemplate} from './components/create-site-header-trip-menu.js';
 import {createFilterTripTemplate} from './components/create-site-header-trip-filter.js';
 import {createSortTripTemplate} from './components/create-site-maintContent-filter-sort.js';
+import {createDayTemplate} from './components/create-site-maintContent-day.js';
 import {createEditFormItemTemplate} from './components/create-site-maintContent-edit-form.js';
 import {createWaypointItemTemplate} from './components/create-site-maintContent-waypoint.js';
+
+import {generateFilters} from './mock/filter.js';
+import {generateCards} from './mock/events.js';
 
 const renderTemplate = (container, template, place = `beforeend`) => {
   container.insertAdjacentHTML(place, template);
@@ -23,19 +28,33 @@ const getBasicBlock = () => {
 };
 
 const getHeaderSite = () => {
+  const filters = generateFilters();
+
   const headerTripInfoElement = headerElement.querySelector(`.trip-info`);
   renderTemplate(headerTripInfoElement, createInfoTripTemplate());
   renderTemplate(headerTripInfoElement, createCostTripTemplate());
   renderTemplate(headerTripControlsElement, createMenuTripTemplate(), `afterbegin`);
-  renderTemplate(headerTripControlsElement, createFilterTripTemplate());
+  renderTemplate(headerTripControlsElement, createFilterTripTemplate(filters));
 };
 
 const getMainContentSite = () => {
-  const mainTripEventsListElement = mainTripEventsElement.querySelector(`.trip-events__list`);
+  const cards = generateCards(TRIP_COUNT);
+  const mainTripDaysItemElement = document.querySelector(`.trip-days`);
+
   renderTemplate(mainTripEventsElement, createSortTripTemplate(), `afterbegin`);
-  renderTemplate(mainTripEventsListElement, createEditFormItemTemplate());
-  for (let i = 0; i < TRIP_COUNT; i++) {
-    renderTemplate(mainTripEventsListElement, createWaypointItemTemplate());
+
+  // renderTemplate(mainTripDaysItemElement, createDayTemplate(cards[0], 0), `afterbegin`);
+
+  cards.forEach((card, index) =>
+    renderTemplate(mainTripDaysItemElement, createDayTemplate(card, index)), `afterbegin`
+  );
+
+  const mainTripEventsListElement = mainTripEventsElement.querySelector(`.trip-events__list`);
+  renderTemplate(mainTripEventsListElement, createEditFormItemTemplate(cards[0]));
+
+
+  for (let i = 0; i < cards.length; i++) {
+    renderTemplate(mainTripEventsListElement, createWaypointItemTemplate(cards[i]));
   }
 };
 
