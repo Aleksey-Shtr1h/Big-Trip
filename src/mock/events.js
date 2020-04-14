@@ -1,13 +1,13 @@
 import {getRandomArrayItem, getRandomIntegerNumber, shuffleArray, getStartDate, getRandomDate} from '../utils.js';
 
-const Сities = [`Amsterdam`, `Chamonix`, `Geneva`, `Minsk`, `Havana`, `Paris`, `Budapest`, `Rome`, `Riga`, `London`];
+const CITIES = [`Amsterdam`, `Chamonix`, `Geneva`, `Minsk`, `Havana`, `Paris`, `Budapest`, `Rome`, `Riga`, `London`];
 
-const TypeOfWaypoints = {
+const TYPE_OF_WAYPOINTS = {
   transfers: [`Taxi`, `Bus`, `Train`, `Ship`, `Drive`, `Flight`],
   activitys: [`Check-in`, `Sightseeing`, `Restaurant`],
 };
 
-const Offers = [
+const OFFERS = [
   {type: `luggage`, name: `Add luggage`, price: getRandomIntegerNumber(20, 250)},
   {type: `comfort`, name: `Switch to comfort`, price: getRandomIntegerNumber(20, 250)},
   {type: `meal`, name: `Add meal`, price: getRandomIntegerNumber(20, 250)},
@@ -15,7 +15,7 @@ const Offers = [
   {type: `train`, name: `Travel by train`, price: getRandomIntegerNumber(20, 250)},
 ];
 
-const DescriptionItems = [
+const DESCRIPTION_ITEMS = [
   `Равным образом укрепление и развитие структуры в значительной степени обуславливает создание направлений прогрессивного развития.`,
   `Повседневная практика показывает, что дальнейшее развитие различных форм деятельности требуют от нас анализа систем массового участия.`,
   `Идейные соображения высшего порядка, а также сложившаяся структура организации способствует подготовки и реализации соответствующий условий активизации.`,
@@ -23,7 +23,7 @@ const DescriptionItems = [
 ];
 
 const getOffers = () => {
-  const copyOffers = Offers.slice();
+  const copyOffers = OFFERS.slice();
   const options = copyOffers.slice(0, getRandomIntegerNumber(1, 5));
   return shuffleArray(options);
 };
@@ -42,9 +42,9 @@ const getArrayPhotos = (count) => {
 
 const generateCard = () => {
   return {
-    city: getRandomArrayItem(Сities),
-    typeOfWaypoints: TypeOfWaypoints,
-    description: getRandomArrayItem(DescriptionItems),
+    city: getRandomArrayItem(CITIES),
+    typeOfWaypoints: TYPE_OF_WAYPOINTS,
+    description: getRandomArrayItem(DESCRIPTION_ITEMS),
     startDate: getStartDate(),
     endDate: getRandomDate(),
     offer: getOffers(),

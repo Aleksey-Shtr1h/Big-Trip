@@ -14,6 +14,7 @@ import {createDayTemplate} from './components/create-site-maintContent-day.js';
 import {createEditFormItemTemplate} from './components/create-site-maintContent-edit-form.js';
 import {createWaypointItemTemplate} from './components/create-site-maintContent-waypoint.js';
 
+import {getRandomIntegerNumber} from './utils.js';
 import {generateFilters} from './mock/filter.js';
 import {generateCards} from './mock/events.js';
 
@@ -43,9 +44,7 @@ const getMainContentSite = () => {
   renderTemplate(mainTripEventsElement, createSortTripTemplate(), `afterbegin`);
 
   cards.map((card, index) => {
-    const minTripList = 3;
-    const maxTripList = 6;
-    const tripList = minTripList + Math.floor(Math.random() * (maxTripList - minTripList));
+    const tripList = getRandomIntegerNumber(3, 5);
     renderTemplate(mainTripDaysItemElement, createDayTemplate(card, index));
     const mainTripEventsListElement = mainTripEventsElement.querySelector(`.trip-events__list--${index}`);
 
