@@ -1,4 +1,4 @@
-import {formatTime, formatDate, getRandomArrayItem} from '../utils.js';
+import {formatTime, formatDate, getRandomArrayItem, createElement} from '../utils.js';
 
 const createRepeatingOffersMarkup = (options) => {
   return options.map((option) => {
@@ -13,7 +13,7 @@ const createRepeatingOffersMarkup = (options) => {
   }).join(`\n \n`);
 };
 
-export const createWaypointItemTemplate = (card) => {
+const createWaypointItemTemplate = (card) => {
   const {city, typeOfWaypoints, startDate, endDate, offer, price} = card;
 
   const {transfers, activitys} = typeOfWaypoints;
@@ -67,3 +67,25 @@ export const createWaypointItemTemplate = (card) => {
     </li>`
   );
 };
+
+export default class WaypointItem {
+  constructor(cards) {
+    this._cards = cards;
+    this._element = null;
+  }
+
+  getTemplate() {
+    return createWaypointItemTemplate(this._cards);
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}

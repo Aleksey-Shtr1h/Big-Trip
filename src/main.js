@@ -4,56 +4,57 @@ const headerTripMainElement = headerElement.querySelector(`.trip-main`);
 const headerTripControlsElement = headerElement.querySelector(`.trip-controls`);
 const mainTripEventsElement = document.querySelector(`.trip-events`);
 
-import {createInfoContainerTemplate, createTripDaysList} from './components/create-site-basic-block.js';
-import {createInfoTripTemplate} from './components/create-site-header-trip-info.js';
-import {createCostTripTemplate} from './components/create-site-header-trip-cost.js';
-import {createMenuTripTemplate} from './components/create-site-header-trip-menu.js';
-import {createFilterTripTemplate} from './components/create-site-header-trip-filter.js';
-import {createSortTripTemplate} from './components/create-site-maintContent-filter-sort.js';
-import {createDayTemplate} from './components/create-site-maintContent-day.js';
-import {createEditFormItemTemplate} from './components/create-site-maintContent-edit-form.js';
-import {createWaypointItemTemplate} from './components/create-site-maintContent-waypoint.js';
 
-import {getRandomIntegerNumber} from './utils.js';
+import InfoContainerComponent from './components/create-site-header-containerInfo.js';
+import HeaderInfoTripComponent from './components/create-site-header-trip-info.js';
+import HeaderCostTripComponent from './components/create-site-header-trip-cost.js';
+import HeaderSiteMenuComponent from './components/create-site-header-trip-menu.js';
+import HeaderFilterComponent from './components/create-site-header-trip-filter.js';
+
+import MainTripDaysListComponent from './components/create-site-maintContent-listDay.js';
+import MainSortTripComponent from './components/create-site-maintContent-filter-sort.js';
+import MainNumberDayComponent from './components/create-site-maintContent-day.js';
+import MainEditFormComponent from './components/create-site-maintContent-edit-form.js';
+import MainWaypointItemComponent from './components/create-site-maintContent-waypoint.js';
+
+import {renderTemplate, RenderPosition, getRandomIntegerNumber} from './utils.js';
 import {generateFilters} from './mock/filter.js';
 import {generateCards} from './mock/events.js';
 
-const renderTemplate = (container, template, place = `beforeend`) => {
-  container.insertAdjacentHTML(place, template);
-};
-
 const getBasicBlock = () => {
-  renderTemplate(headerTripMainElement, createInfoContainerTemplate(), `afterbegin`);
-  renderTemplate(mainTripEventsElement, createTripDaysList());
+  renderTemplate(headerTripMainElement, new InfoContainerComponent().getElement(), RenderPosition.AFTERBEGIN);
+  renderTemplate(mainTripEventsElement, new MainTripDaysListComponent().getElement(), RenderPosition.BEFOREEND);
 };
 
 const getHeaderSite = () => {
+  const headerTripInfoElement = headerElement.querySelector(`.trip-info`);
   const filters = generateFilters();
 
-  const headerTripInfoElement = headerElement.querySelector(`.trip-info`);
-  renderTemplate(headerTripInfoElement, createInfoTripTemplate());
-  renderTemplate(headerTripInfoElement, createCostTripTemplate());
-  renderTemplate(headerTripControlsElement, createMenuTripTemplate(), `afterbegin`);
-  renderTemplate(headerTripControlsElement, createFilterTripTemplate(filters));
+  renderTemplate(headerTripInfoElement, new HeaderInfoTripComponent().getElement(), RenderPosition.BEFOREEND);
+  renderTemplate(headerTripInfoElement, new HeaderCostTripComponent().getElement(), RenderPosition.BEFOREEND);
+  renderTemplate(headerTripControlsElement, new HeaderSiteMenuComponent().getElement(), RenderPosition.AFTERBEGIN);
+  renderTemplate(headerTripControlsElement, new HeaderFilterComponent(filters).getElement(), RenderPosition.BEFOREEND);
 };
 
 const getMainContentSite = () => {
-  const cards = generateCards(TRIP_COUNT);
   const mainTripDaysItemElement = document.querySelector(`.trip-days`);
 
-  renderTemplate(mainTripEventsElement, createSortTripTemplate(), `afterbegin`);
+  const cards = generateCards(TRIP_COUNT);
+  renderTemplate(mainTripEventsElement, new MainSortTripComponent().getElement(), RenderPosition.AFTERBEGIN);
 
   cards.map((card, index) => {
     const tripList = getRandomIntegerNumber(3, 5);
-    renderTemplate(mainTripDaysItemElement, createDayTemplate(card, index));
+
+    renderTemplate(mainTripDaysItemElement, new MainNumberDayComponent(card, index).getElement(), RenderPosition.BEFOREEND);
+
     const mainTripEventsListElement = mainTripEventsElement.querySelector(`.trip-events__list--${index}`);
 
     if (index === 0) {
-      renderTemplate(mainTripEventsListElement, createEditFormItemTemplate(card, index));
+      renderTemplate(mainTripEventsListElement, new MainEditFormComponent(card).getElement(), RenderPosition.BEFOREEND);
     }
 
     cards.slice(1, tripList)
-    .forEach((count) => renderTemplate(mainTripEventsListElement, createWaypointItemTemplate(count)));
+    .forEach((count) => renderTemplate(mainTripEventsListElement, new MainWaypointItemComponent(count).getElement(), RenderPosition.BEFOREEND));
   });
 };
 

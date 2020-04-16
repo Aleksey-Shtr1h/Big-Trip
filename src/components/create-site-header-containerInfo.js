@@ -1,21 +1,19 @@
 import {createElement} from '../utils.js';
 
-const createMenuTripTemplate = () => {
+const createInfoContainerTemplate = () => {
   return (
-    `<nav class="trip-controls__trip-tabs  trip-tabs">
-      <a class="trip-tabs__btn  trip-tabs__btn--active" href="#">Table</a>
-      <a class="trip-tabs__btn" href="#">Stats</a>
-    </nav>`
+    `<section class="trip-main__trip-info  trip-info">
+    </section>`
   );
 };
 
-export default class SiteMenu {
+export default class InfoContainer {
   constructor() {
     this._element = null;
   }
 
   getTemplate() {
-    return createMenuTripTemplate();
+    return createInfoContainerTemplate();
   }
 
   getElement() {
@@ -29,3 +27,4 @@ export default class SiteMenu {
     this._element = null;
   }
 }
+
