@@ -14,6 +14,7 @@ import HeaderFilterComponent from './components/create-site-header-trip-filter.j
 import MainTripDaysListComponent from './components/create-site-maintContent-listDay.js';
 import MainSortTripComponent from './components/create-site-maintContent-filter-sort.js';
 import MainNumberDayComponent from './components/create-site-maintContent-day.js';
+import MainListWaypointComponent from './components/create-site-maintContent-listWaypoint.js';
 import MainEditFormComponent from './components/create-site-maintContent-edit-form.js';
 import MainWaypointItemComponent from './components/create-site-maintContent-waypoint.js';
 
@@ -23,7 +24,6 @@ import {generateCards} from './mock/events.js';
 
 const getBasicBlock = () => {
   renderTemplate(headerTripMainElement, new InfoContainerComponent().getElement(), RenderPosition.AFTERBEGIN);
-  renderTemplate(mainTripEventsElement, new MainTripDaysListComponent().getElement(), RenderPosition.BEFOREEND);
 };
 
 const getHeaderSite = () => {
@@ -37,25 +37,54 @@ const getHeaderSite = () => {
 };
 
 const getMainContentSite = () => {
-  const mainTripDaysItemElement = document.querySelector(`.trip-days`);
 
   const cards = generateCards(TRIP_COUNT);
+
+  const renderTripCard = (cardListElement, countCard) => {
+    const onEditButtonClick = () => {
+      cardListElement.replaceChild(editFormComponent.getElement(), waypointItemComponent.getElement());
+    };
+
+    const onEditFormSubmit = (evt) => {
+      evt.preventDefault();
+      cardListElement.replaceChild(waypointItemComponent.getElement(), editFormComponent.getElement());
+    };
+
+    const waypointItemComponent = new MainWaypointItemComponent(countCard);
+    const editEventBtn = waypointItemComponent.getElement().querySelector(`.event__rollup-btn`);
+    editEventBtn.addEventListener(`click`, onEditButtonClick);
+
+    const editFormComponent = new MainEditFormComponent(countCard);
+    const editEventForm = editFormComponent.getElement().querySelector(`form`);
+    editEventForm.addEventListener(`submit`, onEditFormSubmit);
+
+    renderTemplate(cardListElement, waypointItemComponent.getElement(), RenderPosition.BEFOREEND);
+  };
+
+  const renderTripDays = (daysListElement, cardsTrip) => {
+    const mainTripDaysListElement = daysListElement.getElement();
+
+    cardsTrip.map((card, index) => {
+      const tripList = getRandomIntegerNumber(1, 5);
+
+      const numberDay = new MainNumberDayComponent(card, index);
+      const mainListWaypoint = new MainListWaypointComponent();
+
+      renderTemplate(mainTripDaysListElement, numberDay.getElement(), RenderPosition.BEFOREEND);
+
+      renderTemplate(numberDay.getElement(), mainListWaypoint.getElement(), RenderPosition.BEFOREEND);
+
+      const mainListWaypointElement = mainListWaypoint.getElement();
+      cardsTrip.slice(0, tripList).forEach((countCard) => {
+        renderTripCard(mainListWaypointElement, countCard);
+      });
+    });
+  };
+
+  const tripDaysListComponent = new MainTripDaysListComponent();
   renderTemplate(mainTripEventsElement, new MainSortTripComponent().getElement(), RenderPosition.AFTERBEGIN);
-
-  cards.map((card, index) => {
-    const tripList = getRandomIntegerNumber(3, 5);
-
-    renderTemplate(mainTripDaysItemElement, new MainNumberDayComponent(card, index).getElement(), RenderPosition.BEFOREEND);
-
-    const mainTripEventsListElement = mainTripEventsElement.querySelector(`.trip-events__list--${index}`);
-
-    if (index === 0) {
-      renderTemplate(mainTripEventsListElement, new MainEditFormComponent(card).getElement(), RenderPosition.BEFOREEND);
-    }
-
-    cards.slice(1, tripList)
-    .forEach((count) => renderTemplate(mainTripEventsListElement, new MainWaypointItemComponent(count).getElement(), RenderPosition.BEFOREEND));
-  });
+  renderTemplate(mainTripEventsElement, tripDaysListComponent.getElement(), RenderPosition.BEFOREEND);
+  renderTripDays(tripDaysListComponent, cards);
 };
 
 getBasicBlock();
