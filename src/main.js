@@ -1,4 +1,10 @@
-const TRIP_COUNT = 12;
+const TRIP_COUNT = 0;
+
+const StatusCodesEsc = {
+  ESCAPE: `Escape`,
+  ESC: `Esc`,
+};
+
 const headerElement = document.querySelector(`.page-header`);
 const headerTripMainElement = headerElement.querySelector(`.trip-main`);
 const headerTripControlsElement = headerElement.querySelector(`.trip-controls`);
@@ -11,6 +17,7 @@ import HeaderCostTripComponent from './components/create-site-header-trip-cost.j
 import HeaderSiteMenuComponent from './components/create-site-header-trip-menu.js';
 import HeaderFilterComponent from './components/create-site-header-trip-filter.js';
 
+import MainNoPointsComponent from './components/create-site-maintContent-no-points.js';
 import MainTripDaysListComponent from './components/create-site-maintContent-listDay.js';
 import MainSortTripComponent from './components/create-site-maintContent-filter-sort.js';
 import MainNumberDayComponent from './components/create-site-maintContent-day.js';
@@ -38,30 +45,47 @@ const getHeaderSite = () => {
 
 const getMainContentSite = () => {
 
+
   const cards = generateCards(TRIP_COUNT);
 
   const renderTripCard = (cardListElement, countCard) => {
-    const onEditButtonClick = () => {
+
+    const replaceCardToFormCard = () => {
       cardListElement.replaceChild(editFormComponent.getElement(), waypointItemComponent.getElement());
     };
 
-    const onEditFormSubmit = (evt) => {
-      evt.preventDefault();
+    const replaceFormCardToCard = () => {
       cardListElement.replaceChild(waypointItemComponent.getElement(), editFormComponent.getElement());
+    };
+
+    const onEscKeyDown = (evt) => {
+      const isEscKey = evt.key === StatusCodesEsc.ESCAPE || StatusCodesEsc.ESC;
+      if (isEscKey) {
+        replaceFormCardToCard();
+        document.removeEventListener(`keydown`, onEscKeyDown);
+      }
     };
 
     const waypointItemComponent = new MainWaypointItemComponent(countCard);
     const editEventBtn = waypointItemComponent.getElement().querySelector(`.event__rollup-btn`);
-    editEventBtn.addEventListener(`click`, onEditButtonClick);
+    editEventBtn.addEventListener(`click`, () => {
+      replaceCardToFormCard();
+      document.addEventListener(`keydown`, onEscKeyDown);
+    });
 
     const editFormComponent = new MainEditFormComponent(countCard);
     const editEventForm = editFormComponent.getElement().querySelector(`form`);
-    editEventForm.addEventListener(`submit`, onEditFormSubmit);
+    editEventForm.addEventListener(`submit`, (evt) => {
+      evt.preventDefault();
+      replaceFormCardToCard();
+      document.removeEventListener(`keydown`, onEscKeyDown);
+    });
 
     renderTemplate(cardListElement, waypointItemComponent.getElement(), RenderPosition.BEFOREEND);
   };
 
   const renderTripDays = (daysListElement, cardsTrip) => {
+
     const mainTripDaysListElement = daysListElement.getElement();
 
     cardsTrip.map((card, index) => {
@@ -82,9 +106,14 @@ const getMainContentSite = () => {
   };
 
   const tripDaysListComponent = new MainTripDaysListComponent();
-  renderTemplate(mainTripEventsElement, new MainSortTripComponent().getElement(), RenderPosition.AFTERBEGIN);
-  renderTemplate(mainTripEventsElement, tripDaysListComponent.getElement(), RenderPosition.BEFOREEND);
-  renderTripDays(tripDaysListComponent, cards);
+  renderTemplate(mainTripEventsElement, new MainSortTripComponent().getElement(), RenderPosition.BEFOREEND);
+
+  if (!cards.length) {
+    renderTemplate(mainTripEventsElement, new MainNoPointsComponent().getElement(), RenderPosition.BEFOREEND);
+  } else {
+    renderTemplate(mainTripEventsElement, tripDaysListComponent.getElement(), RenderPosition.BEFOREEND);
+    renderTripDays(tripDaysListComponent, cards);
+  }
 };
 
 getBasicBlock();
