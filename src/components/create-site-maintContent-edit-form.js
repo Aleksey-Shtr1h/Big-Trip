@@ -1,7 +1,4 @@
-// Тип транспорта - class="event__type-item" - моки
-// Опции offer - class="event__available-offers - моки
-
-import {formatTime, formatDate, getRandomArrayItem} from '../utils.js';
+import {formatTime, formatDate, getRandomArrayItem, createElement} from '../utils.js';
 
 const createRepeatingOffersMarkup = (options) => {
   return options.map((option, index) => {
@@ -79,7 +76,7 @@ const createRepeatingPhotoMarkup = (counts) => {
 };
 
 
-export const createEditFormItemTemplate = (card) => {
+const createEditFormTemplate = (card) => {
 
   const {city, typeOfWaypoints, description, startDate, endDate, offer, price, photosCount, isFavorite} = card;
 
@@ -209,3 +206,25 @@ export const createEditFormItemTemplate = (card) => {
     </li>`
   );
 };
+
+export default class EditForm {
+  constructor(cards) {
+    this._cards = cards;
+    this._element = null;
+  }
+
+  getTemplate() {
+    return createEditFormTemplate(this._cards);
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}

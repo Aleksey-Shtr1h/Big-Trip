@@ -1,21 +1,19 @@
 import {createElement} from '../utils.js';
 
-const createMenuTripTemplate = () => {
+const createListWaypointTemplate = () => {
   return (
-    `<nav class="trip-controls__trip-tabs  trip-tabs">
-      <a class="trip-tabs__btn  trip-tabs__btn--active" href="#">Table</a>
-      <a class="trip-tabs__btn" href="#">Stats</a>
-    </nav>`
+    `<ul class="trip-events__list">
+    </ul>`
   );
 };
 
-export default class SiteMenu {
+export default class ListWaypoint {
   constructor() {
     this._element = null;
   }
 
   getTemplate() {
-    return createMenuTripTemplate();
+    return createListWaypointTemplate();
   }
 
   getElement() {
