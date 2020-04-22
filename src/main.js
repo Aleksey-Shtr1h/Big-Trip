@@ -1,15 +1,11 @@
-const TRIP_COUNT = 0;
-
-const StatusCodesEsc = {
-  ESCAPE: `Escape`,
-  ESC: `Esc`,
-};
+const TRIP_COUNT = 12;
 
 const headerElement = document.querySelector(`.page-header`);
 const headerTripMainElement = headerElement.querySelector(`.trip-main`);
 const headerTripControlsElement = headerElement.querySelector(`.trip-controls`);
 const mainTripEventsElement = document.querySelector(`.trip-events`);
 
+import TripDaysController from './controllers/tripDays.js';
 
 import InfoContainerComponent from './components/create-site-header-containerInfo.js';
 import HeaderInfoTripComponent from './components/create-site-header-trip-info.js';
@@ -20,99 +16,39 @@ import HeaderFilterComponent from './components/create-site-header-trip-filter.j
 import MainNoPointsComponent from './components/create-site-maintContent-no-points.js';
 import MainTripDaysListComponent from './components/create-site-maintContent-listDay.js';
 import MainSortTripComponent from './components/create-site-maintContent-filter-sort.js';
-import MainNumberDayComponent from './components/create-site-maintContent-day.js';
-import MainListWaypointComponent from './components/create-site-maintContent-listWaypoint.js';
-import MainEditFormComponent from './components/create-site-maintContent-edit-form.js';
-import MainWaypointItemComponent from './components/create-site-maintContent-waypoint.js';
 
-import {renderTemplate, RenderPosition, getRandomIntegerNumber} from './utils.js';
+import {renderTemplate, RenderPosition} from './utils/render.js';
 import {generateFilters} from './mock/filter.js';
 import {generateCards} from './mock/events.js';
 
 const getBasicBlock = () => {
-  renderTemplate(headerTripMainElement, new InfoContainerComponent().getElement(), RenderPosition.AFTERBEGIN);
+  renderTemplate(headerTripMainElement, new InfoContainerComponent(), RenderPosition.AFTERBEGIN);
 };
 
 const getHeaderSite = () => {
   const headerTripInfoElement = headerElement.querySelector(`.trip-info`);
   const filters = generateFilters();
 
-  renderTemplate(headerTripInfoElement, new HeaderInfoTripComponent().getElement(), RenderPosition.BEFOREEND);
-  renderTemplate(headerTripInfoElement, new HeaderCostTripComponent().getElement(), RenderPosition.BEFOREEND);
-  renderTemplate(headerTripControlsElement, new HeaderSiteMenuComponent().getElement(), RenderPosition.AFTERBEGIN);
-  renderTemplate(headerTripControlsElement, new HeaderFilterComponent(filters).getElement(), RenderPosition.BEFOREEND);
+  renderTemplate(headerTripInfoElement, new HeaderInfoTripComponent(), RenderPosition.BEFOREEND);
+  renderTemplate(headerTripInfoElement, new HeaderCostTripComponent(), RenderPosition.BEFOREEND);
+  renderTemplate(headerTripControlsElement, new HeaderSiteMenuComponent(), RenderPosition.AFTERBEGIN);
+  renderTemplate(headerTripControlsElement, new HeaderFilterComponent(filters), RenderPosition.BEFOREEND);
 };
 
 const getMainContentSite = () => {
 
-
   const cards = generateCards(TRIP_COUNT);
 
-  const renderTripCard = (cardListElement, countCard) => {
-
-    const replaceCardToFormCard = () => {
-      cardListElement.replaceChild(editFormComponent.getElement(), waypointItemComponent.getElement());
-    };
-
-    const replaceFormCardToCard = () => {
-      cardListElement.replaceChild(waypointItemComponent.getElement(), editFormComponent.getElement());
-    };
-
-    const onEscKeyDown = (evt) => {
-      const isEscKey = evt.key === StatusCodesEsc.ESCAPE || StatusCodesEsc.ESC;
-      if (isEscKey) {
-        replaceFormCardToCard();
-        document.removeEventListener(`keydown`, onEscKeyDown);
-      }
-    };
-
-    const waypointItemComponent = new MainWaypointItemComponent(countCard);
-    const editEventBtn = waypointItemComponent.getElement().querySelector(`.event__rollup-btn`);
-    editEventBtn.addEventListener(`click`, () => {
-      replaceCardToFormCard();
-      document.addEventListener(`keydown`, onEscKeyDown);
-    });
-
-    const editFormComponent = new MainEditFormComponent(countCard);
-    const editEventForm = editFormComponent.getElement().querySelector(`form`);
-    editEventForm.addEventListener(`submit`, (evt) => {
-      evt.preventDefault();
-      replaceFormCardToCard();
-      document.removeEventListener(`keydown`, onEscKeyDown);
-    });
-
-    renderTemplate(cardListElement, waypointItemComponent.getElement(), RenderPosition.BEFOREEND);
-  };
-
-  const renderTripDays = (daysListElement, cardsTrip) => {
-
-    const mainTripDaysListElement = daysListElement.getElement();
-
-    cardsTrip.map((card, index) => {
-      const tripList = getRandomIntegerNumber(1, 5);
-
-      const numberDay = new MainNumberDayComponent(card, index);
-      const mainListWaypoint = new MainListWaypointComponent();
-
-      renderTemplate(mainTripDaysListElement, numberDay.getElement(), RenderPosition.BEFOREEND);
-
-      renderTemplate(numberDay.getElement(), mainListWaypoint.getElement(), RenderPosition.BEFOREEND);
-
-      const mainListWaypointElement = mainListWaypoint.getElement();
-      cardsTrip.slice(0, tripList).forEach((countCard) => {
-        renderTripCard(mainListWaypointElement, countCard);
-      });
-    });
-  };
-
   const tripDaysListComponent = new MainTripDaysListComponent();
-  renderTemplate(mainTripEventsElement, new MainSortTripComponent().getElement(), RenderPosition.BEFOREEND);
+  const tripDaysController = new TripDaysController(tripDaysListComponent);
+  renderTemplate(mainTripEventsElement, new MainSortTripComponent(), RenderPosition.BEFOREEND);
 
   if (!cards.length) {
-    renderTemplate(mainTripEventsElement, new MainNoPointsComponent().getElement(), RenderPosition.BEFOREEND);
+    renderTemplate(mainTripEventsElement, new MainNoPointsComponent(), RenderPosition.BEFOREEND);
   } else {
-    renderTemplate(mainTripEventsElement, tripDaysListComponent.getElement(), RenderPosition.BEFOREEND);
-    renderTripDays(tripDaysListComponent, cards);
+    renderTemplate(mainTripEventsElement, tripDaysListComponent, RenderPosition.BEFOREEND);
+    // renderTripDays(tripDaysListComponent, cards);
+    tripDaysController.renderDays(cards);
   }
 };
 

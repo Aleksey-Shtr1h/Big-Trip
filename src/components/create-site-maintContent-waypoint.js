@@ -1,4 +1,5 @@
-import {formatTime, formatDate, getRandomArrayItem, createElement} from '../utils.js';
+import {formatTime, formatDate, getRandomArrayItem} from '../utils/common.js';
+import AbstractComponent from './abstract-component.js';
 
 const createRepeatingOffersMarkup = (options) => {
   return options.map((option) => {
@@ -68,24 +69,17 @@ const createWaypointItemTemplate = (card) => {
   );
 };
 
-export default class WaypointItem {
+export default class WaypointItem extends AbstractComponent {
   constructor(cards) {
+    super();
     this._cards = cards;
-    this._element = null;
   }
 
   getTemplate() {
     return createWaypointItemTemplate(this._cards);
   }
 
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
+  setBtnClickHandler(handler) {
+    this.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, handler);
   }
 }
