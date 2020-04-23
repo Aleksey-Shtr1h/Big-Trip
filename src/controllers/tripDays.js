@@ -50,7 +50,6 @@ export default class TripDaysController {
 
   constructor(container) {
     this._container = container;
-    // this._mainListWaypoint = new MainListWaypointComponent();
   }
 
   renderDays(cardsTrip) {

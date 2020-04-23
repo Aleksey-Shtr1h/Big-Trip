@@ -21,7 +21,6 @@ const createWaypointItemTemplate = (card) => {
 
   const randomWaypointItem = getRandomArrayItem([...transfers, ...activitys]);
 
-  // const isExpired = startDate instanceof Date && startDate < Date.now();
   const isDateShowing = !!startDate;
 
   const time = isDateShowing ? formatTime(startDate) : ``;

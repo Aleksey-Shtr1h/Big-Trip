@@ -47,7 +47,6 @@ const getMainContentSite = () => {
     renderTemplate(mainTripEventsElement, new MainNoPointsComponent(), RenderPosition.BEFOREEND);
   } else {
     renderTemplate(mainTripEventsElement, tripDaysListComponent, RenderPosition.BEFOREEND);
-    // renderTripDays(tripDaysListComponent, cards);
     tripDaysController.renderDays(cards);
   }
 };
