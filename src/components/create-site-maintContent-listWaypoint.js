@@ -1,4 +1,4 @@
-import {createElement} from '../utils.js';
+import AbstractComponent from './abstract-component.js';
 
 const createListWaypointTemplate = () => {
   return (
@@ -7,23 +7,10 @@ const createListWaypointTemplate = () => {
   );
 };
 
-export default class ListWaypoint {
-  constructor() {
-    this._element = null;
-  }
+export default class ListWaypoint extends AbstractComponent {
 
   getTemplate() {
     return createListWaypointTemplate();
   }
 
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
-  }
 }

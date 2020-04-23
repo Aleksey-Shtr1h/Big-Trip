@@ -1,4 +1,4 @@
-import {createElement} from '../utils.js';
+import AbstractComponent from './abstract-component.js';
 
 const createInfoContainerTemplate = () => {
   return (
@@ -7,24 +7,11 @@ const createInfoContainerTemplate = () => {
   );
 };
 
-export default class InfoContainer {
-  constructor() {
-    this._element = null;
-  }
+export default class InfoContainer extends AbstractComponent {
 
   getTemplate() {
     return createInfoContainerTemplate();
   }
 
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
-  }
 }
 

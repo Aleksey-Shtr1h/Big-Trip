@@ -1,4 +1,4 @@
-import {createElement} from '../utils.js';
+import AbstractComponent from './abstract-component.js';
 
 const createNumberDayTemplate = (card, countDay) => {
   return (
@@ -13,25 +13,15 @@ const createNumberDayTemplate = (card, countDay) => {
 };
 
 
-export default class NumberDay {
+export default class NumberDay extends AbstractComponent {
   constructor(cards, index) {
+    super();
     this._cards = cards;
     this._index = index;
-    this._element = null;
   }
 
   getTemplate() {
     return createNumberDayTemplate(this._cards, this._index);
   }
 
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
-  }
 }

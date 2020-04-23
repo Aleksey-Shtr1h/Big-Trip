@@ -1,4 +1,4 @@
-import {getRandomArrayItem, getRandomIntegerNumber, shuffleArray, getStartDate, getRandomDate} from '../utils.js';
+import {getRandomArrayItem, getRandomIntegerNumber, shuffleArray, getStartDate, getRandomDate} from '../utils/common.js';
 
 const CITIES = [`Amsterdam`, `Chamonix`, `Geneva`, `Minsk`, `Havana`, `Paris`, `Budapest`, `Rome`, `Riga`, `London`];
 

@@ -1,4 +1,5 @@
-import {formatTime, formatDate, getRandomArrayItem, createElement} from '../utils.js';
+import {formatTime, formatDate, getRandomArrayItem} from '../utils/common.js';
+import AbstractComponent from './abstract-component.js';
 
 const createRepeatingOffersMarkup = (options) => {
   return options.map((option, index) => {
@@ -83,7 +84,6 @@ const createEditFormTemplate = (card) => {
   const {transfers, activitys} = typeOfWaypoints;
 
   const randomWaypointItem = getRandomArrayItem([...transfers, ...activitys]);
-  // const isExpired = startDate instanceof Date && startDate < Date.now();
   const isDateShowing = !!startDate;
 
   const time = isDateShowing ? formatTime(startDate) : ``;
@@ -207,24 +207,19 @@ const createEditFormTemplate = (card) => {
   );
 };
 
-export default class EditForm {
+export default class EditForm extends AbstractComponent {
   constructor(cards) {
+    super();
     this._cards = cards;
-    this._element = null;
   }
 
   getTemplate() {
     return createEditFormTemplate(this._cards);
   }
 
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-    return this._element;
+  setSubmitHandler(handler) {
+    this.getElement().querySelector(`form`).addEventListener(`submit`, handler);
   }
 
-  removeElement() {
-    this._element = null;
-  }
+
 }
