@@ -1,4 +1,5 @@
-const TRIP_COUNT = 12;
+const TRIP_DAYS = [1, 2, 3, 4, 5, 6, 8];
+const TRIP_COUNT = 4;
 
 const headerElement = document.querySelector(`.page-header`);
 const headerTripMainElement = headerElement.querySelector(`.trip-main`);
@@ -36,7 +37,7 @@ const getHeaderSite = () => {
 };
 
 const getMainContentSite = () => {
-
+  const days = TRIP_DAYS;
   const cards = generateCards(TRIP_COUNT);
 
   const tripDaysListComponent = new MainTripDaysListComponent();
@@ -46,7 +47,7 @@ const getMainContentSite = () => {
     renderTemplate(mainTripEventsElement, new MainNoPointsComponent(), RenderPosition.BEFOREEND);
   } else {
     renderTemplate(mainTripEventsElement, tripDaysListComponent, RenderPosition.BEFOREEND);
-    tripDaysController.renderDays(cards);
+    tripDaysController.renderDays(days, cards);
   }
 };
 

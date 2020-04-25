@@ -1,7 +1,7 @@
 const sortOptions = [`event`, `time`, `price`];
 
 
-const generateSort = () => {
+const generateSortOptions = () => {
   return sortOptions.map((it) => {
     return {
       name: it,
@@ -10,4 +10,4 @@ const generateSort = () => {
   });
 };
 
-export {generateSort};
+export {generateSortOptions};

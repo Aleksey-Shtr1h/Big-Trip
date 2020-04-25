@@ -3,6 +3,12 @@ const StatusCodesEsc = {
   ESC: `Esc`,
 };
 
+const SortingFunction = {
+  TIME: (a, b) => (a.endDate - a.startDate) - (b.endDate - b.startDate),
+  PRICE: (a, b) => a.price - b.price,
+  EVENT: (a, b) => b.randomWaypointItem - a.randomWaypointItem,
+};
+
 const mainTripEventsElement = document.querySelector(`.trip-events`);
 
 import MainSortTripComponent, {SortType} from '../components/create-site-maintContent-filter-sort.js';
@@ -12,13 +18,10 @@ import MainEditFormComponent from '../components/create-site-maintContent-edit-f
 import MainWaypointItemComponent from '../components/create-site-maintContent-waypoint.js';
 
 import {renderTemplate, RenderPosition, raplaceElement} from '../utils/render.js';
-import {getRandomIntegerNumber} from '../utils/common.js';
 
+import {generateSortOptions} from '../mock/sortOption.js';
 
-import {generateSort} from '../mock/sortOption.js';
-
-const sortOptions = generateSort();
-const tripList = getRandomIntegerNumber(2, 5);
+const sortOptions = generateSortOptions();
 
 const renderTripCard = (cardListElement, countCard) => {
 
@@ -54,26 +57,26 @@ const renderTripCard = (cardListElement, countCard) => {
   renderTemplate(cardListElement, waypointItemComponent, RenderPosition.BEFOREEND);
 };
 
-const getSortedCards = (cards, sortType, from, to) => {
+const getSortedCards = (cards, sortType) => {
   let sortedCards = [];
   const showingCards = cards.slice();
-  switch (sortType) {
-    case SortType.TIME:
-      sortedCards = showingCards.sort((a, b) => (a.endDate - a.startDate) - (b.endDate - b.startDate));
-      break;
-    case SortType.PRICE:
-      sortedCards = showingCards.sort((a, b) => a.price - b.price);
-      break;
-    case SortType.EVENT:
-      sortedCards = showingCards.sort((a, b) => a.randomWaypointItem - b.randomWaypointItem);
-      break;
+
+  if (sortType === SortType.TIME) {
+    sortedCards = showingCards.sort(SortingFunction.TIME);
+  }
+  if (sortType === SortType.PRICE) {
+    sortedCards = showingCards.sort(SortingFunction.PRICE);
+  }
+  if (sortType === SortType.EVENT) {
+    sortedCards = showingCards.sort(SortingFunction.EVENT);
   }
 
-  return sortedCards.slice(from, to);
+  return sortedCards;
 };
 
-const renderTripDays = (cardsTrip, container, cardsSort) => {
-  cardsTrip.map((card, index) => {
+const renderTripDays = (days, container, cardsSort) => {
+
+  days.map((card, index) => {
     const numberDay = new MainNumberDayComponent(card, index);
     const mainListWaypoint = new MainListWaypointComponent();
 
@@ -82,7 +85,7 @@ const renderTripDays = (cardsTrip, container, cardsSort) => {
     renderTemplate(numberDay.getElement(), mainListWaypoint, RenderPosition.BEFOREEND);
 
     const mainListWaypointElement = mainListWaypoint.getElement();
-    cardsSort.slice(0, tripList).forEach((countCard) => {
+    cardsSort.forEach((countCard) => {
       renderTripCard(mainListWaypointElement, countCard);
     });
   });
@@ -95,21 +98,29 @@ export default class TripDaysController {
     this._sortComponent = new MainSortTripComponent(sortOptions);
   }
 
-  renderDays(cardsTrip) {
+  renderDays(daysTrip, cardsTrip) {
 
     const mainTripDaysListElement = this._container.getElement();
 
     renderTemplate(mainTripEventsElement, this._sortComponent, RenderPosition.AFTERBEGIN);
 
-    renderTripDays(cardsTrip, mainTripDaysListElement, cardsTrip);
+    renderTemplate(mainTripEventsElement, this._sortComponent, RenderPosition.AFTERBEGIN);
+
+    this._sortComponent.getElement().remove();
+    renderTemplate(mainTripEventsElement, this._sortComponent, RenderPosition.AFTERBEGIN);
+
+    renderTripDays(daysTrip, mainTripDaysListElement, cardsTrip);
 
     this._sortComponent.setSortTypeChangeHandler((sortType) => {
 
-      const sortedCards = getSortedCards(cardsTrip, sortType, 0, tripList);
+      const sortedCards = getSortedCards(cardsTrip, sortType);
+
+      this._sortComponent.getElement().remove();
+      renderTemplate(mainTripEventsElement, this._sortComponent, RenderPosition.AFTERBEGIN);
 
       mainTripDaysListElement.innerHTML = ``;
 
-      renderTripDays(cardsTrip, mainTripDaysListElement, sortedCards);
+      renderTripDays(daysTrip, mainTripDaysListElement, sortedCards);
     });
   }
 }
