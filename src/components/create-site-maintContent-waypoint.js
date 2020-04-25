@@ -1,4 +1,4 @@
-import {formatTime, formatDate, getRandomArrayItem} from '../utils/common.js';
+import {formatTime, formatDate} from '../utils/common.js';
 import AbstractComponent from './abstract-component.js';
 
 const createRepeatingOffersMarkup = (options) => {
@@ -15,11 +15,7 @@ const createRepeatingOffersMarkup = (options) => {
 };
 
 const createWaypointItemTemplate = (card) => {
-  const {city, typeOfWaypoints, startDate, endDate, offer, price} = card;
-
-  const {transfers, activitys} = typeOfWaypoints;
-
-  const randomWaypointItem = getRandomArrayItem([...transfers, ...activitys]);
+  const {city, startDate, endDate, offer, price, randomWaypointItem} = card;
 
   const isDateShowing = !!startDate;
 

@@ -46,10 +46,10 @@ const getStartDate = () => {
 
 const getRandomDate = () => {
   const targetDate = new Date();
-  const diffValueDate = getRandomIntegerNumber(2, 15);
-  const diffValueHours = getRandomIntegerNumber(0, 24);
-  const diffValueMinutes = getRandomIntegerNumber(0, 60);
-  targetDate.setDate(targetDate.getDate() + diffValueDate);
+  // const diffValueDate = getRandomIntegerNumber(2, 15);
+  const diffValueHours = getRandomIntegerNumber(1, 5);
+  const diffValueMinutes = getRandomIntegerNumber(0, 59);
+  // targetDate.setDate(targetDate.getDate() + diffValueDate);
   targetDate.setHours(targetDate.getHours() + diffValueHours);
   targetDate.setMinutes(targetDate.getMinutes() + diffValueMinutes);
 

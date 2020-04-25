@@ -40,6 +40,9 @@ const getArrayPhotos = (count) => {
   return shuffleArray(result);
 };
 
+const {transfers, activitys} = TYPE_OF_WAYPOINTS;
+const randomWaypointItem = [...transfers, ...activitys];
+
 const generateCard = () => {
   return {
     city: getRandomArrayItem(CITIES),
@@ -51,7 +54,7 @@ const generateCard = () => {
     price: getRandomIntegerNumber(100, 200),
     photosCount: getArrayPhotos(getRandomIntegerNumber(1, 5)),
     isFavorite: Math.random() > 0.5,
-
+    randomWaypointItem: getRandomArrayItem(randomWaypointItem),
   };
 };
 

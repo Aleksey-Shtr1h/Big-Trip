@@ -15,7 +15,7 @@ import HeaderFilterComponent from './components/create-site-header-trip-filter.j
 
 import MainNoPointsComponent from './components/create-site-maintContent-no-points.js';
 import MainTripDaysListComponent from './components/create-site-maintContent-listDay.js';
-import MainSortTripComponent from './components/create-site-maintContent-filter-sort.js';
+// import MainSortTripComponent from './components/create-site-maintContent-filter-sort.js';
 
 import {renderTemplate, RenderPosition} from './utils/render.js';
 import {generateFilters} from './mock/filter.js';
@@ -41,7 +41,6 @@ const getMainContentSite = () => {
 
   const tripDaysListComponent = new MainTripDaysListComponent();
   const tripDaysController = new TripDaysController(tripDaysListComponent);
-  renderTemplate(mainTripEventsElement, new MainSortTripComponent(), RenderPosition.BEFOREEND);
 
   if (!cards.length) {
     renderTemplate(mainTripEventsElement, new MainNoPointsComponent(), RenderPosition.BEFOREEND);
