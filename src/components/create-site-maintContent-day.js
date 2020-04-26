@@ -1,11 +1,12 @@
 import AbstractComponent from './abstract-component.js';
 
 const createNumberDayTemplate = (card, countDay) => {
+
   return (
     `<li class="trip-days__item  day ${countDay + 1}">
       <div class="day__info">
         <span class="day__counter">${countDay + 1}</span>
-        <time class="day__date" datetime="2019-03-18">MAR 18</time>
+        <time class="day__date" datetime="2019-03-18">${card}</time>
       </div>
 
     </li>`

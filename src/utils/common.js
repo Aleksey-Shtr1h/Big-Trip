@@ -1,3 +1,5 @@
+export const TRIP_COUNT = 10;
+
 const castTimeFormat = (value) => {
   return value < 10 ? `0${value}` : String(value);
 };
@@ -6,7 +8,7 @@ const castTimeMinutesFormat = (value) => {
   return value < 30 ? `00` : `30`;
 };
 
-const formatTime = (date) => {
+export const formatTime = (date) => {
 
   const hours = castTimeFormat(date.getHours() % 24);
   const minutes = castTimeMinutesFormat(date.getMinutes());
@@ -14,7 +16,7 @@ const formatTime = (date) => {
   return `${hours}:${minutes}`;
 };
 
-const formatDate = (date) => {
+export const formatDate = (date) => {
   const dateNow = castTimeFormat(date.getDate());
   const month = castTimeFormat(date.getMonth() + 1);
   const year = castTimeFormat(date.getFullYear()).slice(2);
@@ -24,34 +26,49 @@ const formatDate = (date) => {
   return fullDate;
 };
 
-const getRandomArrayItem = (array) => {
+export const getRandomArrayItem = (array) => {
   const randomIndex = getRandomIntegerNumber(0, array.length);
   return array[randomIndex];
 };
 
-const getRandomIntegerNumber = (min, max) => {
+export const getRandomIntegerNumber = (min, max) => {
   return min + Math.floor(Math.random() * (max - min));
 };
 
-function shuffleArray(array) {
+export const shuffleArray = (array) => {
   const result = array.slice();
   result.sort(() => Math.random() - 0.5);
   return result;
-}
-
-const getStartDate = () => {
-  const targetDate = new Date();
-  return targetDate;
 };
 
-const getRandomDate = () => {
-  const targetDate = new Date();
-  const diffValueHours = getRandomIntegerNumber(1, 5);
-  const diffValueMinutes = getRandomIntegerNumber(0, 59);
-  targetDate.setHours(targetDate.getHours() + diffValueHours);
-  targetDate.setMinutes(targetDate.getMinutes() + diffValueMinutes);
+export const getArrayTripTime = (time) => {
+  let result = [];
+  let hourInterval = 0;
+  let minuteInterval = 0;
 
-  return targetDate;
+  for (let i = 1; i <= time * 2; i++) {
+    let targetDate = new Date();
+    let hour = getRandomIntegerNumber(1, 5);
+    let minutes = getRandomIntegerNumber(1, 59);
+    hourInterval += hour;
+    minuteInterval += minutes;
+    targetDate.setHours(targetDate.getHours() + hour + hourInterval);
+    targetDate.setMinutes(targetDate.getMinutes() + minutes + minuteInterval);
+    result.push(targetDate);
+  }
+
+  return result;
 };
 
-export {formatTime, formatDate, getRandomArrayItem, getRandomIntegerNumber, shuffleArray, getStartDate, getRandomDate};
+const dayTrip = getArrayTripTime(TRIP_COUNT);
+export const dayTripSort = dayTrip.sort((prev, next) => prev - next).slice();
+
+export const getDuration = (start, end) => {
+  const durationTime = end - start;
+  const day = Math.floor(durationTime / 1000 / 60 / 60 / 24);
+  const hour = Math.floor((durationTime / 1000 / 60 / 60) % 24);
+  const min = Math.floor((durationTime / 1000 / 60) % 60);
+  const duration = `${day}D ${hour}H ${min}M`;
+  return duration;
+};
+

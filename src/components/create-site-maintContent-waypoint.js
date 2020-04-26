@@ -1,4 +1,4 @@
-import {formatTime, formatDate} from '../utils/common.js';
+import {formatTime, formatDate, getDuration} from '../utils/common.js';
 import AbstractComponent from './abstract-component.js';
 
 const createRepeatingOffersMarkup = (options) => {
@@ -26,7 +26,7 @@ const createWaypointItemTemplate = (card) => {
   const nextDate = isDateShowing ? formatDate(endDate) : ``;
 
   const repeatingOffersMarkup = createRepeatingOffersMarkup(offer);
-
+  const eventDuration = getDuration(startDate, endDate);
   return (
     `<li class="trip-events__item">
       <div class="event">
@@ -42,7 +42,7 @@ const createWaypointItemTemplate = (card) => {
             &mdash;
             <time class="event__end-time" datetime="${nextDate}T${nextTime}">${nextTime}</time>
           </p>
-          <p class="event__duration">30M</p>
+          <p class="event__duration">${eventDuration}</p>
         </div>
 
         <p class="event__price">
