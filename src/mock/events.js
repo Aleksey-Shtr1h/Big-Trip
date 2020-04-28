@@ -1,4 +1,4 @@
-import {getRandomArrayItem, getRandomIntegerNumber, shuffleArray, getStartDate, getRandomDate} from '../utils/common.js';
+import {getRandomArrayItem, getRandomIntegerNumber, shuffleArray, dayTripSort} from '../utils/common.js';
 
 const CITIES = [`Amsterdam`, `Chamonix`, `Geneva`, `Minsk`, `Havana`, `Paris`, `Budapest`, `Rome`, `Riga`, `London`];
 
@@ -40,25 +40,29 @@ const getArrayPhotos = (count) => {
   return shuffleArray(result);
 };
 
+const {transfers, activitys} = TYPE_OF_WAYPOINTS;
+const randomWaypointItem = [...transfers, ...activitys];
+let a = dayTripSort;
 const generateCard = () => {
   return {
     city: getRandomArrayItem(CITIES),
     typeOfWaypoints: TYPE_OF_WAYPOINTS,
     description: getRandomArrayItem(DESCRIPTION_ITEMS),
-    startDate: getStartDate(),
-    endDate: getRandomDate(),
+    startDate: a.splice(0, 1)[0],
+    endDate: a.splice(0, 1)[0],
     offer: getOffers(),
     price: getRandomIntegerNumber(100, 200),
     photosCount: getArrayPhotos(getRandomIntegerNumber(1, 5)),
     isFavorite: Math.random() > 0.5,
-
+    randomWaypointItem: getRandomArrayItem(randomWaypointItem),
   };
 };
 
 const generateCards = (count) => {
   return new Array(count)
     .fill(``)
-    .map(generateCard);
+    .map(generateCard)
+    .sort((prev, next) => prev.startDate - next.startDate);
 };
 
 export {generateCard, generateCards};

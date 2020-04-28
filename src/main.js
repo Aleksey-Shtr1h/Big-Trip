@@ -1,5 +1,3 @@
-const TRIP_COUNT = 12;
-
 const headerElement = document.querySelector(`.page-header`);
 const headerTripMainElement = headerElement.querySelector(`.trip-main`);
 const headerTripControlsElement = headerElement.querySelector(`.trip-controls`);
@@ -15,11 +13,11 @@ import HeaderFilterComponent from './components/create-site-header-trip-filter.j
 
 import MainNoPointsComponent from './components/create-site-maintContent-no-points.js';
 import MainTripDaysListComponent from './components/create-site-maintContent-listDay.js';
-import MainSortTripComponent from './components/create-site-maintContent-filter-sort.js';
 
 import {renderTemplate, RenderPosition} from './utils/render.js';
 import {generateFilters} from './mock/filter.js';
 import {generateCards} from './mock/events.js';
+import {TRIP_COUNT} from './utils/common.js';
 
 const getBasicBlock = () => {
   renderTemplate(headerTripMainElement, new InfoContainerComponent(), RenderPosition.AFTERBEGIN);
@@ -36,12 +34,10 @@ const getHeaderSite = () => {
 };
 
 const getMainContentSite = () => {
-
   const cards = generateCards(TRIP_COUNT);
 
   const tripDaysListComponent = new MainTripDaysListComponent();
   const tripDaysController = new TripDaysController(tripDaysListComponent);
-  renderTemplate(mainTripEventsElement, new MainSortTripComponent(), RenderPosition.BEFOREEND);
 
   if (!cards.length) {
     renderTemplate(mainTripEventsElement, new MainNoPointsComponent(), RenderPosition.BEFOREEND);
