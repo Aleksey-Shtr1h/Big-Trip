@@ -42,14 +42,15 @@ const getArrayPhotos = (count) => {
 
 const {transfers, activitys} = TYPE_OF_WAYPOINTS;
 const randomWaypointItem = [...transfers, ...activitys];
-let a = dayTripSort;
+let mockTripSortDay = dayTripSort;
+
 const generateCard = () => {
   return {
     city: getRandomArrayItem(CITIES),
     typeOfWaypoints: TYPE_OF_WAYPOINTS,
     description: getRandomArrayItem(DESCRIPTION_ITEMS),
-    startDate: a.splice(0, 1)[0],
-    endDate: a.splice(0, 1)[0],
+    startDate: mockTripSortDay.splice(0, 1)[0],
+    endDate: mockTripSortDay.splice(0, 1)[0],
     offer: getOffers(),
     price: getRandomIntegerNumber(100, 200),
     photosCount: getArrayPhotos(getRandomIntegerNumber(1, 5)),

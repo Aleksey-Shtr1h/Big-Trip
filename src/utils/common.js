@@ -1,4 +1,4 @@
-export const TRIP_COUNT = 10;
+export const TRIP_COUNT = 3;
 
 const castTimeFormat = (value) => {
   return value < 10 ? `0${value}` : String(value);
