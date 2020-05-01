@@ -1,5 +1,6 @@
 import {formatTime, formatDate} from '../utils/common.js';
-import AbstractComponent from './abstract-component.js';
+import {CITIES, getOffers} from '../mock/events.js';
+import AbstractSmartComponent from './abstract-smart-component.js';
 
 const createFavoriteBtnMarkup = (name, isActive = true) => {
   return (
@@ -96,10 +97,7 @@ const createRepeatingPhotoMarkup = (counts) => {
 
 
 const createEditFormTemplate = (card) => {
-
   const {city, typeOfWaypoints, description, startDate, endDate, offer, price, photosCount, randomWaypointItem} = card;
-
-  const {transfers, activitys} = typeOfWaypoints;
 
   const isDateShowing = !!startDate;
 
@@ -109,13 +107,13 @@ const createEditFormTemplate = (card) => {
   const nextTime = isDateShowing ? formatTime(endDate) : ``;
   const nextDate = isDateShowing ? formatDate(endDate) : ``;
 
-  const favoritesButton = createFavoriteBtnMarkup(`favorite`, !card.isFavorite);
+  const favoritesButton = createFavoriteBtnMarkup(`favorite`, card.isFavorite);
 
   const repeatingOffersMarkup = createRepeatingOffersMarkup(offer);
 
-  const repeatingTransfersMarkup = createRepeatingTransferMarkup(transfers, randomWaypointItem);
+  const repeatingTransfersMarkup = createRepeatingTransferMarkup(typeOfWaypoints.transfers, randomWaypointItem);
 
-  const repeatingActivityMarkup = createRepeatingActivityMarkup(activitys, randomWaypointItem);
+  const repeatingActivityMarkup = createRepeatingActivityMarkup(typeOfWaypoints.activitys, randomWaypointItem);
   const repeatingPhotoMarkup = createRepeatingPhotoMarkup(photosCount);
 
 
@@ -152,9 +150,7 @@ const createEditFormTemplate = (card) => {
               value="${city}"
               list="destination-list-1">
             <datalist id="destination-list-1">
-              <option value="${city}"></option>
-              <option value="Geneva"></option>
-              <option value="Chamonix"></option>
+              ${CITIES.map((it) =>`<option value="${it}"></option>`).join(`\n \n`)}
             </datalist>
           </div>
 
@@ -216,10 +212,17 @@ const createEditFormTemplate = (card) => {
   );
 };
 
-export default class EditForm extends AbstractComponent {
+export default class EditForm extends AbstractSmartComponent {
   constructor(cards) {
     super();
     this._cards = cards;
+    this._typeOfWaypoints = cards.typeOfWaypoints.wayPointsAll;
+    this._offer = cards.offer;
+    this._city = cards.city;
+    this._description = cards.description;
+    this._photos = cards.photos;
+
+    this._submitHandler = null;
     this._favoriteClickHandler = null;
   }
 
@@ -227,12 +230,48 @@ export default class EditForm extends AbstractComponent {
     return createEditFormTemplate(this._cards);
   }
 
+  reset() {
+    const cards = this._cards;
+
+    this._type = cards.typeOfWaypoints.wayPointsAll;
+    this._city = cards.city;
+    this._offer = cards.offer;
+    this._description = cards.description;
+    this._photos = cards.photos;
+
+    this.rerender();
+  }
+
+  rerender() {
+    super.rerender();
+  }
+
+  recoveryListeners() {
+    this.setSubmitHandler(this._submitHandler);
+    this.setFavoritesInputClickHandler(this._favoriteClickHandler);
+    this._subscribeOnEvents();
+  }
+
   setSubmitHandler(handler) {
     this.getElement().querySelector(`form`).addEventListener(`submit`, handler);
+    this._submitHandler = handler;
   }
 
   setFavoritesInputClickHandler(handler) {
-    this.getElement().querySelector(`.event__favorite-checkbox`).addEventListener(`click`, handler);
+    this.getElement().querySelector(`.event__favorite-icon`).addEventListener(`click`, handler);
     this._favoriteClickHandler = handler;
+    this._subscribeOnEvents();
+  }
+
+  _subscribeOnEvents() {
+    const element = this.getElement();
+    element.querySelector(`.event__type-list`)
+    .addEventListener(`click`, (evt) => {
+      if (evt.target.tagName === `INPUT`) {
+        this._typeOfWaypoints = evt.target.value;
+        this._offer = getOffers();
+        this.rerender();
+      }
+    });
   }
 }

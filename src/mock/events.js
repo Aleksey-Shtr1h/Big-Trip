@@ -1,11 +1,13 @@
 import {getRandomArrayItem, getRandomIntegerNumber, shuffleArray, dayTripSort} from '../utils/common.js';
 
-const CITIES = [`Amsterdam`, `Chamonix`, `Geneva`, `Minsk`, `Havana`, `Paris`, `Budapest`, `Rome`, `Riga`, `London`];
+export const CITIES = [`Amsterdam`, `Chamonix`, `Geneva`, `Minsk`, `Havana`, `Paris`, `Budapest`, `Rome`, `Riga`, `London`];
 
 const TYPE_OF_WAYPOINTS = {
   transfers: [`Taxi`, `Bus`, `Train`, `Ship`, `Drive`, `Flight`],
   activitys: [`Check-in`, `Sightseeing`, `Restaurant`],
+  wayPointsAll: [`Taxi`, `Bus`, `Train`, `Ship`, `Drive`, `Flight`, `Check-in`, `Sightseeing`, `Restaurant`],
 };
+
 
 const OFFERS = [
   {type: `luggage`, name: `Add luggage`, price: getRandomIntegerNumber(20, 250)},
@@ -22,7 +24,7 @@ const DESCRIPTION_ITEMS = [
   `Таким образом новая модель организационной деятельности играет важную роль в формировании соответствующий условий активизации.`
 ];
 
-const getOffers = () => {
+export const getOffers = () => {
   const copyOffers = OFFERS.slice();
   const options = copyOffers.slice(0, getRandomIntegerNumber(1, 5));
   return shuffleArray(options);
@@ -54,7 +56,7 @@ const generateCard = () => {
     offer: getOffers(),
     price: getRandomIntegerNumber(100, 200),
     photosCount: getArrayPhotos(getRandomIntegerNumber(1, 5)),
-    isFavorite: Math.random() > 0.5,
+    isFavorite: true,
     randomWaypointItem: getRandomArrayItem(randomWaypointItem),
   };
 };

@@ -3,26 +3,39 @@ const StatusCodesEsc = {
   ESC: `Esc`,
 };
 
+const Mode = {
+  DEFAULT: `default`,
+  EDIT: `edit`,
+};
+
 import MainEditFormComponent from '../components/create-site-maintContent-edit-form.js';
 import MainWaypointItemComponent from '../components/create-site-maintContent-waypoint.js';
 import {renderTemplate, RenderPosition, raplaceElement} from '../utils/render.js';
 
 
 export default class TripCardController {
-  constructor(container, onDataChange) {
+  constructor(container, onDataChange, onViewChange) {
     this._container = container;
 
     this._onDataChange = onDataChange;
+    this._onViewChange = onViewChange;
+    this._mode = Mode.DEFAULT;
 
     this._waypointItemComponent = null;
     this._editFormComponent = null;
     this._onEscKeyDown = this._onEscKeyDown.bind(this);
   }
 
-  renderTripCard(countCard) {
+  renderTripCard(card) {
+    const oldTaskComponent = this._waypointItemComponent;
+    const oldTaskEditComponent = this._editFormComponent;
 
-    this._waypointItemComponent = new MainWaypointItemComponent(countCard);
-    this._editFormComponent = new MainEditFormComponent(countCard);
+    this._waypointItemComponent = new MainWaypointItemComponent(card);
+    this._editFormComponent = new MainEditFormComponent(card);
+
+    this._editFormComponent.setFavoritesInputClickHandler(() => {
+      this._onDataChange(this, card, Object.assign({}, card, {isFavorite: !card.isFavorite}));
+    });
 
     this._waypointItemComponent.setBtnClickHandler(() => {
       this._replaceCardToFormCard();
@@ -35,20 +48,31 @@ export default class TripCardController {
       document.removeEventListener(`keydown`, this._onEscKeyDown);
     });
 
-    this._editFormComponent.setFavoritesInputClickHandler(() => {
-      this._onDataChange(this, countCard, Object.assign({}, countCard, {isFavorite: !countCard.isFavorite}));
-    });
+    if (oldTaskEditComponent && oldTaskComponent) {
+      raplaceElement(this._waypointItemComponent, oldTaskComponent);
+      raplaceElement(this._editFormComponent, oldTaskEditComponent);
+    } else {
+      renderTemplate(this._container, this._waypointItemComponent, RenderPosition.BEFOREEND);
+    }
 
-    renderTemplate(this._container, this._waypointItemComponent, RenderPosition.BEFOREEND);
+    // renderTemplate(this._container, this._waypointItemComponent, RenderPosition.BEFOREEND);
   }
 
   _replaceCardToFormCard() {
+    // this._editFormComponent.reset();
+    this._onViewChange();
     raplaceElement(this._editFormComponent, this._waypointItemComponent);
+    // this._mode = Mode.DEFAULT;
+    this._mode = Mode.EDIT;
   }
 
   _replaceFormCardToCard() {
+    // this._onViewChange();
+    this._editFormComponent.reset();
     document.removeEventListener(`keydown`, this._onEscKeyDown);
     raplaceElement(this._waypointItemComponent, this._editFormComponent);
+    // this._mode = Mode.EDIT;
+    this._mode = Mode.DEFAULT;
   }
 
   _onEscKeyDown(evt) {
@@ -56,6 +80,12 @@ export default class TripCardController {
     if (isEscKey) {
       this._replaceFormCardToCard();
       document.removeEventListener(`keydown`, this._onEscKeyDown);
+    }
+  }
+
+  setDefaultView() {
+    if (this._mode !== Mode.DEFAULT) {
+      this._replaceFormCardToCard();
     }
   }
 

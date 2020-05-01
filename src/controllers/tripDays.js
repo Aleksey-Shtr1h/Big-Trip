@@ -17,11 +17,11 @@ import {generateSortOptions} from '../mock/sortOption.js';
 
 const sortOptions = generateSortOptions();
 
-const renderTripCards = (cardsSort, container, day, onDataChange) => {
+const renderTripCards = (cardsSort, container, day, onDataChange, onViewChange) => {
   return cardsSort.map((countCard) => {
-    const tripCardController = new TripCardController(container, onDataChange);
+    const tripCardController = new TripCardController(container, onDataChange, onViewChange);
     if (countCard.startDate.toDateString() === day) {
-      tripCardController.renderTripCard(countCard, onDataChange);
+      tripCardController.renderTripCard(countCard);
     }
     return tripCardController;
   });
@@ -46,9 +46,13 @@ export default class TripDaysController {
     this._showedCardControllers = [];
 
     this._sortComponent = new MainSortTripComponent(sortOptions);
+    this._numberDayComponent = null;
+    this._listWaypointComponent = null;
 
     this._onDataChange = this._onDataChange.bind(this);
+    this._onViewChange = this._onViewChange.bind(this);
     this._onSortTypeChange = this._onSortTypeChange.bind(this);
+
     this._sortComponent.setSortTypeChangeHandler(this._onSortTypeChange);
   }
 
@@ -68,15 +72,14 @@ export default class TripDaysController {
 
   _renderTripDays(container, tripCards) {
     this._daysTrip.forEach((day, index) => {
-      const numberDay = new MainNumberDayComponent(day, index);
-      const mainListWaypoint = new MainListWaypointComponent();
+      this._numberDayComponent = new MainNumberDayComponent(day, index);
+      this._listWaypointComponent = new MainListWaypointComponent();
 
-      renderTemplate(container, numberDay, RenderPosition.BEFOREEND);
+      renderTemplate(container, this._numberDayComponent, RenderPosition.BEFOREEND);
 
-      renderTemplate(numberDay.getElement(), mainListWaypoint, RenderPosition.BEFOREEND);
+      renderTemplate(this._numberDayComponent.getElement(), this._listWaypointComponent, RenderPosition.BEFOREEND);
 
-      const mainListWaypointElement = mainListWaypoint.getElement();
-      const newCards = renderTripCards(tripCards, mainListWaypointElement, day, this._onDataChange);
+      const newCards = renderTripCards(tripCards, this._listWaypointComponent.getElement(), day, this._onDataChange, this._onViewChange);
       this._showedCardControllers = this._showedCardControllers.concat(newCards);
     });
   }
@@ -93,6 +96,10 @@ export default class TripDaysController {
     cardController.renderTripCard(this._cardsTrip[index]);
   }
 
+  _onViewChange() {
+    this._showedCardControllers.forEach((it) => it.setDefaultView());
+  }
+
   _onSortTypeChange(sortType) {
     const mainTripDaysListElement = this._container.getElement();
     const sortedCards = getSortedCards(this._cardsTrip, sortType);
@@ -102,21 +109,7 @@ export default class TripDaysController {
 
     mainTripDaysListElement.innerHTML = ``;
 
-    this._renderTripDays(mainTripDaysListElement, sortedCards);
+    const newCards = this._renderTripDays(mainTripDaysListElement, sortedCards);
+    this._showedCardController = newCards;
   }
-
-  // _renderTripDays(container, tripCards) {
-  //   this._daysTrip.forEach((day, index) => {
-  //     const numberDay = new MainNumberDayComponent(day, index);
-  //     const mainListWaypoint = new MainListWaypointComponent();
-
-  //     renderTemplate(container, numberDay, RenderPosition.BEFOREEND);
-
-  //     renderTemplate(numberDay.getElement(), mainListWaypoint, RenderPosition.BEFOREEND);
-
-  //     const mainListWaypointElement = mainListWaypoint.getElement();
-  //     const newCards = renderTripCards(tripCards, mainListWaypointElement, day, this._onDataChange);
-  //     this._showedCardControllers = this._showedCardControllers.concat(newCards);
-  //   });
-  // }
 }
