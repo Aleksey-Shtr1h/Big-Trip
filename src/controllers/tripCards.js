@@ -54,24 +54,18 @@ export default class TripCardController {
     } else {
       renderTemplate(this._container, this._waypointItemComponent, RenderPosition.BEFOREEND);
     }
-
-    // renderTemplate(this._container, this._waypointItemComponent, RenderPosition.BEFOREEND);
   }
 
   _replaceCardToFormCard() {
-    // this._editFormComponent.reset();
     this._onViewChange();
     raplaceElement(this._editFormComponent, this._waypointItemComponent);
-    // this._mode = Mode.DEFAULT;
     this._mode = Mode.EDIT;
   }
 
   _replaceFormCardToCard() {
-    // this._onViewChange();
     this._editFormComponent.reset();
     document.removeEventListener(`keydown`, this._onEscKeyDown);
     raplaceElement(this._waypointItemComponent, this._editFormComponent);
-    // this._mode = Mode.EDIT;
     this._mode = Mode.DEFAULT;
   }
 
@@ -88,5 +82,4 @@ export default class TripCardController {
       this._replaceFormCardToCard();
     }
   }
-
 }

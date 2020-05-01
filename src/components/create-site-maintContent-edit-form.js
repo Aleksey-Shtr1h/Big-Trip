@@ -1,5 +1,5 @@
-import {formatTime, formatDate} from '../utils/common.js';
-import {CITIES, getOffers} from '../mock/events.js';
+import {formatTime, formatDate, getRandomArrayItem} from '../utils/common.js';
+import {CITIES, getOffers, DESCRIPTION_ITEMS} from '../mock/events.js';
 import AbstractSmartComponent from './abstract-smart-component.js';
 
 const createFavoriteBtnMarkup = (name, isActive = true) => {
@@ -96,9 +96,9 @@ const createRepeatingPhotoMarkup = (counts) => {
 };
 
 
-const createEditFormTemplate = (card) => {
-  const {city, typeOfWaypoints, description, startDate, endDate, offer, price, photosCount, randomWaypointItem} = card;
-
+const createEditFormTemplate = (card, attributes = {}) => {
+  const {city, startDate, endDate, price, photosCount, randomWaypointItem} = card;
+  const {offer, typeOfWaypoints, type, description} = attributes;
   const isDateShowing = !!startDate;
 
   const time = isDateShowing ? formatTime(startDate) : ``;
@@ -124,7 +124,7 @@ const createEditFormTemplate = (card) => {
           <div class="event__type-wrapper">
             <label class="event__type  event__type-btn" for="event-type-toggle-1">
               <span class="visually-hidden">Choose event type</span>
-              <img class="event__type-icon" width="17" height="17" src="img/icons/${randomWaypointItem}.png" alt="Event type icon">
+              <img class="event__type-icon" width="17" height="17" src="img/icons/${type ? type : randomWaypointItem}.png" alt="Event type icon">
             </label>
             <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
 
@@ -143,7 +143,7 @@ const createEditFormTemplate = (card) => {
 
           <div class="event__field-group  event__field-group--destination">
             <label class="event__label  event__type-output" for="event-destination-1">
-              ${randomWaypointItem} to
+              ${type ? type : randomWaypointItem} to
             </label>
             <input class="event__input  event__input--destination" id="event-destination-1"
               type="text" name="event-destination"
@@ -216,28 +216,33 @@ export default class EditForm extends AbstractSmartComponent {
   constructor(cards) {
     super();
     this._cards = cards;
-    this._typeOfWaypoints = cards.typeOfWaypoints.wayPointsAll;
+    this._typeOfWaypoints = cards.typeOfWaypoints;
     this._offer = cards.offer;
     this._city = cards.city;
     this._description = cards.description;
     this._photos = cards.photos;
 
+    this._type = null;
     this._submitHandler = null;
     this._favoriteClickHandler = null;
+
+    this._subscribeOnEvents();
   }
 
   getTemplate() {
-    return createEditFormTemplate(this._cards);
+    return createEditFormTemplate(this._cards, {
+      offer: this._offer,
+      typeOfWaypoints: this._typeOfWaypoints,
+      type: this._type,
+      description: this._description,
+    });
   }
 
   reset() {
     const cards = this._cards;
 
-    this._type = cards.typeOfWaypoints.wayPointsAll;
-    this._city = cards.city;
     this._offer = cards.offer;
     this._description = cards.description;
-    this._photos = cards.photos;
 
     this.rerender();
   }
@@ -260,18 +265,24 @@ export default class EditForm extends AbstractSmartComponent {
   setFavoritesInputClickHandler(handler) {
     this.getElement().querySelector(`.event__favorite-icon`).addEventListener(`click`, handler);
     this._favoriteClickHandler = handler;
-    this._subscribeOnEvents();
   }
 
   _subscribeOnEvents() {
     const element = this.getElement();
+
     element.querySelector(`.event__type-list`)
     .addEventListener(`click`, (evt) => {
       if (evt.target.tagName === `INPUT`) {
-        this._typeOfWaypoints = evt.target.value;
+        this._type = evt.target.value;
         this._offer = getOffers();
         this.rerender();
       }
+    });
+
+    element.querySelector(`.event__input--destination`)
+    .addEventListener(`click`, () => {
+      this._description = getRandomArrayItem(DESCRIPTION_ITEMS);
+      this.rerender();
     });
   }
 }
