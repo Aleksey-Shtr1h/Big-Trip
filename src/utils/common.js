@@ -72,3 +72,12 @@ export const getDuration = (start, end) => {
   return duration;
 };
 
+export const firstUpper = (value) => {
+  if (!value) {
+    return value;
+  }
+  const result = value[0].toUpperCase() + value.slice(1);
+  return result;
+};
+
+

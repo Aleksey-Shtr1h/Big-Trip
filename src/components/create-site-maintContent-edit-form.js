@@ -1,4 +1,4 @@
-import {formatTime, formatDate, getRandomArrayItem} from '../utils/common.js';
+import {formatTime, formatDate, getRandomArrayItem, firstUpper} from '../utils/common.js';
 import {CITIES, getOffers, DESCRIPTION_ITEMS} from '../mock/events.js';
 import AbstractSmartComponent from './abstract-smart-component.js';
 
@@ -111,9 +111,12 @@ const createEditFormTemplate = (card, attributes = {}) => {
 
   const repeatingOffersMarkup = createRepeatingOffersMarkup(offer);
 
-  const repeatingTransfersMarkup = createRepeatingTransferMarkup(typeOfWaypoints.transfers, randomWaypointItem);
+  const typeUpper = firstUpper(type);
+  const isTypeAvailability = typeUpper ? typeUpper : randomWaypointItem;
 
-  const repeatingActivityMarkup = createRepeatingActivityMarkup(typeOfWaypoints.activitys, randomWaypointItem);
+  const repeatingTransfersMarkup = createRepeatingTransferMarkup(typeOfWaypoints.transfers, isTypeAvailability);
+
+  const repeatingActivityMarkup = createRepeatingActivityMarkup(typeOfWaypoints.activitys, isTypeAvailability);
   const repeatingPhotoMarkup = createRepeatingPhotoMarkup(photosCount);
 
 
@@ -124,7 +127,7 @@ const createEditFormTemplate = (card, attributes = {}) => {
           <div class="event__type-wrapper">
             <label class="event__type  event__type-btn" for="event-type-toggle-1">
               <span class="visually-hidden">Choose event type</span>
-              <img class="event__type-icon" width="17" height="17" src="img/icons/${type ? type : randomWaypointItem}.png" alt="Event type icon">
+              <img class="event__type-icon" width="17" height="17" src="img/icons/${isTypeAvailability}.png" alt="Event type icon">
             </label>
             <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
 
@@ -143,7 +146,7 @@ const createEditFormTemplate = (card, attributes = {}) => {
 
           <div class="event__field-group  event__field-group--destination">
             <label class="event__label  event__type-output" for="event-destination-1">
-              ${type ? type : randomWaypointItem} to
+              ${isTypeAvailability} to
             </label>
             <input class="event__input  event__input--destination" id="event-destination-1"
               type="text" name="event-destination"
@@ -235,6 +238,7 @@ export default class EditForm extends AbstractSmartComponent {
       typeOfWaypoints: this._typeOfWaypoints,
       type: this._type,
       description: this._description,
+      city: this._city,
     });
   }
 
@@ -243,6 +247,7 @@ export default class EditForm extends AbstractSmartComponent {
 
     this._offer = cards.offer;
     this._description = cards.description;
+    this._city = cards.city;
 
     this.rerender();
   }
@@ -269,9 +274,10 @@ export default class EditForm extends AbstractSmartComponent {
 
   _subscribeOnEvents() {
     const element = this.getElement();
+    const typeListElement = element.querySelector(`.event__type-list`);
+    const inputDestinationElement = element.querySelector(`.event__input--destination`);
 
-    element.querySelector(`.event__type-list`)
-    .addEventListener(`click`, (evt) => {
+    typeListElement.addEventListener(`click`, (evt) => {
       if (evt.target.tagName === `INPUT`) {
         this._type = evt.target.value;
         this._offer = getOffers();
@@ -279,8 +285,8 @@ export default class EditForm extends AbstractSmartComponent {
       }
     });
 
-    element.querySelector(`.event__input--destination`)
-    .addEventListener(`click`, () => {
+    inputDestinationElement.addEventListener(`change`, (evt) => {
+      this._city = evt.target.value;
       this._description = getRandomArrayItem(DESCRIPTION_ITEMS);
       this.rerender();
     });

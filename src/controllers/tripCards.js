@@ -1,9 +1,9 @@
-const StatusCodesEsc = {
+const EscapeKey = {
   ESCAPE: `Escape`,
   ESC: `Esc`,
 };
 
-const Mode = {
+const Modes = {
   DEFAULT: `default`,
   EDIT: `edit`,
 };
@@ -19,7 +19,7 @@ export default class TripCardController {
 
     this._onDataChange = onDataChange;
     this._onViewChange = onViewChange;
-    this._mode = Mode.DEFAULT;
+    this._mode = Modes.DEFAULT;
 
     this._waypointItemComponent = null;
     this._editFormComponent = null;
@@ -33,10 +33,6 @@ export default class TripCardController {
     this._waypointItemComponent = new MainWaypointItemComponent(card);
     this._editFormComponent = new MainEditFormComponent(card);
 
-    this._editFormComponent.setFavoritesInputClickHandler(() => {
-      this._onDataChange(this, card, Object.assign({}, card, {isFavorite: !card.isFavorite}));
-    });
-
     this._waypointItemComponent.setBtnClickHandler(() => {
       this._replaceCardToFormCard();
       document.addEventListener(`keydown`, this._onEscKeyDown);
@@ -45,7 +41,10 @@ export default class TripCardController {
     this._editFormComponent.setSubmitHandler((evt) => {
       evt.preventDefault();
       this._replaceFormCardToCard();
-      document.removeEventListener(`keydown`, this._onEscKeyDown);
+    });
+
+    this._editFormComponent.setFavoritesInputClickHandler(() => {
+      this._onDataChange(this, card, Object.assign({}, card, {isFavorite: !card.isFavorite}));
     });
 
     if (oldTaskEditComponent && oldTaskComponent) {
@@ -56,30 +55,30 @@ export default class TripCardController {
     }
   }
 
-  _replaceCardToFormCard() {
-    this._onViewChange();
-    raplaceElement(this._editFormComponent, this._waypointItemComponent);
-    this._mode = Mode.EDIT;
-  }
-
-  _replaceFormCardToCard() {
-    this._editFormComponent.reset();
-    document.removeEventListener(`keydown`, this._onEscKeyDown);
-    raplaceElement(this._waypointItemComponent, this._editFormComponent);
-    this._mode = Mode.DEFAULT;
-  }
-
-  _onEscKeyDown(evt) {
-    const isEscKey = evt.key === StatusCodesEsc.ESCAPE || StatusCodesEsc.ESC;
-    if (isEscKey) {
+  setDefaultView() {
+    if (this._mode !== Modes.DEFAULT) {
       this._replaceFormCardToCard();
-      document.removeEventListener(`keydown`, this._onEscKeyDown);
     }
   }
 
-  setDefaultView() {
-    if (this._mode !== Mode.DEFAULT) {
+  _replaceCardToFormCard() {
+    this._onViewChange();
+    raplaceElement(this._editFormComponent, this._waypointItemComponent);
+    this._mode = Modes.EDIT;
+  }
+
+  _replaceFormCardToCard() {
+    document.removeEventListener(`keydown`, this._onEscKeyDown);
+    this._editFormComponent.reset();
+    raplaceElement(this._waypointItemComponent, this._editFormComponent);
+    this._mode = Modes.DEFAULT;
+  }
+
+  _onEscKeyDown(evt) {
+    const isEscKey = evt.key === EscapeKey.ESCAPE;
+    if (isEscKey) {
       this._replaceFormCardToCard();
+      document.removeEventListener(`keydown`, this._onEscKeyDown);
     }
   }
 }
