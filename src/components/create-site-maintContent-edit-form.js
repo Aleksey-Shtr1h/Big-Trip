@@ -1,4 +1,4 @@
-import {formatTime, formatDate, getRandomArrayItem, firstUpper} from '../utils/common.js';
+import {formatTime, formatDate, getRandomArrayItem, getCapitalizeFirstLetter} from '../utils/common.js';
 import {CITIES, getOffers, DESCRIPTION_ITEMS} from '../mock/events.js';
 import AbstractSmartComponent from './abstract-smart-component.js';
 
@@ -111,7 +111,7 @@ const createEditFormTemplate = (card, attributes = {}) => {
 
   const repeatingOffersMarkup = createRepeatingOffersMarkup(offer);
 
-  const typeUpper = firstUpper(type);
+  const typeUpper = getCapitalizeFirstLetter(type);
   const isTypeAvailability = typeUpper ? typeUpper : randomWaypointItem;
 
   const repeatingTransfersMarkup = createRepeatingTransferMarkup(typeOfWaypoints.transfers, isTypeAvailability);

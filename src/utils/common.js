@@ -72,12 +72,11 @@ export const getDuration = (start, end) => {
   return duration;
 };
 
-export const firstUpper = (value) => {
-  if (!value) {
-    return value;
+export const getCapitalizeFirstLetter = (value) => {
+  if (typeof value !== `string`) {
+    return ``;
   }
-  const result = value[0].toUpperCase() + value.slice(1);
-  return result;
+  return value[0].toUpperCase() + value.slice(1);
 };
 
 
