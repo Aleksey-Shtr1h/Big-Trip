@@ -1,10 +1,3 @@
-const StatusCodesEsc = {
-  ESCAPE: `Escape`,
-  ESC: `Esc`,
-};
-
-import MainSortTripComponent, {SortType} from '../components/create-site-maintContent-filter-sort.js';
-
 const SortingFunction = {
   [SortType.TIME]: (a, b) => (a.endDate - a.startDate) - (b.endDate - b.startDate),
   [SortType.PRICE]: (a, b) => a.price - b.price,
@@ -13,49 +6,25 @@ const SortingFunction = {
 
 const mainTripEventsElement = document.querySelector(`.trip-events`);
 
+import TripCardController from './tripCards.js';
+import MainSortTripComponent, {SortType} from '../components/create-site-maintContent-filter-sort.js';
 import MainNumberDayComponent from '../components/create-site-maintContent-day.js';
 import MainListWaypointComponent from '../components/create-site-maintContent-listWaypoint.js';
-import MainEditFormComponent from '../components/create-site-maintContent-edit-form.js';
-import MainWaypointItemComponent from '../components/create-site-maintContent-waypoint.js';
 
-import {renderTemplate, RenderPosition, raplaceElement} from '../utils/render.js';
+import {renderTemplate, RenderPosition} from '../utils/render.js';
 
 import {generateSortOptions} from '../mock/sortOption.js';
 
 const sortOptions = generateSortOptions();
 
-const renderTripCard = (cardListElement, countCard) => {
-
-  const replaceCardToFormCard = () => {
-    raplaceElement(editFormComponent, waypointItemComponent);
-  };
-
-  const replaceFormCardToCard = () => {
-    raplaceElement(waypointItemComponent, editFormComponent);
-  };
-
-  const onEscKeyDown = (evt) => {
-    const isEscKey = evt.key === StatusCodesEsc.ESCAPE || StatusCodesEsc.ESC;
-    if (isEscKey) {
-      replaceFormCardToCard();
-      document.removeEventListener(`keydown`, onEscKeyDown);
+const renderTripCards = (cardsSort, container, day, onDataChange, onViewChange) => {
+  return cardsSort.map((countCard) => {
+    const tripCardController = new TripCardController(container, onDataChange, onViewChange);
+    if (countCard.startDate.toDateString() === day) {
+      tripCardController.renderTripCard(countCard);
     }
-  };
-
-  const waypointItemComponent = new MainWaypointItemComponent(countCard);
-  waypointItemComponent.setBtnClickHandler(() => {
-    replaceCardToFormCard();
-    document.addEventListener(`keydown`, onEscKeyDown);
+    return tripCardController;
   });
-
-  const editFormComponent = new MainEditFormComponent(countCard);
-  editFormComponent.setSubmitHandler((evt) => {
-    evt.preventDefault();
-    replaceFormCardToCard();
-    document.removeEventListener(`keydown`, onEscKeyDown);
-  });
-
-  renderTemplate(cardListElement, waypointItemComponent, RenderPosition.BEFOREEND);
 };
 
 const getSortedCards = (cards, sortType) => {
@@ -67,58 +36,80 @@ const getSortedCards = (cards, sortType) => {
   return sortedCards;
 };
 
-const renderTripDays = (days, container, cardsSort) => {
-
-  days.forEach((card, index) => {
-    const numberDay = new MainNumberDayComponent(card, index);
-    const mainListWaypoint = new MainListWaypointComponent();
-
-    renderTemplate(container, numberDay, RenderPosition.BEFOREEND);
-
-    renderTemplate(numberDay.getElement(), mainListWaypoint, RenderPosition.BEFOREEND);
-
-    const mainListWaypointElement = mainListWaypoint.getElement();
-
-    cardsSort.forEach((countCard) => {
-      if (countCard.startDate.toDateString() === card) {
-        renderTripCard(mainListWaypointElement, countCard);
-      }
-    });
-  });
-};
-
 export default class TripDaysController {
 
   constructor(container) {
     this._container = container;
+
+    this._cardsTrip = [];
+    this._daysTrip = [];
+    this._showedCardControllers = [];
+
     this._sortComponent = new MainSortTripComponent(sortOptions);
+    this._numberDayComponent = null;
+    this._listWaypointComponent = null;
+
+    this._onDataChange = this._onDataChange.bind(this);
+    this._onViewChange = this._onViewChange.bind(this);
+    this._onSortTypeChange = this._onSortTypeChange.bind(this);
+
+    this._sortComponent.setSortTypeChangeHandler(this._onSortTypeChange);
   }
 
   renderDays(cardsTrip) {
 
-    const daysTrip = [...new Set(cardsTrip.map((card) => card.startDate.toDateString()))];
+    this._cardsTrip = cardsTrip;
+
+    this._daysTrip = [...new Set(this._cardsTrip.map((card) => card.startDate.toDateString()))];
 
     const mainTripDaysListElement = this._container.getElement();
-
-    renderTemplate(mainTripEventsElement, this._sortComponent, RenderPosition.AFTERBEGIN);
-
-    renderTemplate(mainTripEventsElement, this._sortComponent, RenderPosition.AFTERBEGIN);
 
     this._sortComponent.getElement().remove();
     renderTemplate(mainTripEventsElement, this._sortComponent, RenderPosition.AFTERBEGIN);
 
-    renderTripDays(daysTrip, mainTripDaysListElement, cardsTrip);
+    this._renderTripDays(mainTripDaysListElement, this._cardsTrip);
+  }
 
-    this._sortComponent.setSortTypeChangeHandler((sortType) => {
+  _renderTripDays(container, tripCards) {
+    this._daysTrip.forEach((day, index) => {
+      this._numberDayComponent = new MainNumberDayComponent(day, index);
+      this._listWaypointComponent = new MainListWaypointComponent();
 
-      const sortedCards = getSortedCards(cardsTrip, sortType);
+      renderTemplate(container, this._numberDayComponent, RenderPosition.BEFOREEND);
 
-      this._sortComponent.getElement().remove();
-      renderTemplate(mainTripEventsElement, this._sortComponent, RenderPosition.AFTERBEGIN);
+      renderTemplate(this._numberDayComponent.getElement(), this._listWaypointComponent, RenderPosition.BEFOREEND);
 
-      mainTripDaysListElement.innerHTML = ``;
-
-      renderTripDays(daysTrip, mainTripDaysListElement, sortedCards);
+      const newCards = renderTripCards(tripCards, this._listWaypointComponent.getElement(), day, this._onDataChange, this._onViewChange);
+      this._showedCardControllers = this._showedCardControllers.concat(newCards);
     });
+  }
+
+  _onDataChange(cardController, oldData, newData) {
+    const index = this._cardsTrip.findIndex((it) => it === oldData);
+
+    if (index === -1) {
+      return;
+    }
+
+    this._cardsTrip = [].concat(this._cardsTrip.slice(0, index), newData, this._cardsTrip.slice(index + 1));
+
+    cardController.renderTripCard(this._cardsTrip[index]);
+  }
+
+  _onViewChange() {
+    this._showedCardControllers.forEach((it) => it.setDefaultView());
+  }
+
+  _onSortTypeChange(sortType) {
+    const mainTripDaysListElement = this._container.getElement();
+    const sortedCards = getSortedCards(this._cardsTrip, sortType);
+
+    this._sortComponent.getElement().remove();
+    renderTemplate(mainTripEventsElement, this._sortComponent, RenderPosition.AFTERBEGIN);
+
+    mainTripDaysListElement.innerHTML = ``;
+
+    const newCards = this._renderTripDays(mainTripDaysListElement, sortedCards);
+    this._showedCardController = newCards;
   }
 }

@@ -1,4 +1,4 @@
-export const TRIP_COUNT = 10;
+export const TRIP_COUNT = 3;
 
 const castTimeFormat = (value) => {
   return value < 10 ? `0${value}` : String(value);
@@ -71,4 +71,12 @@ export const getDuration = (start, end) => {
   const duration = `${day}D ${hour}H ${min}M`;
   return duration;
 };
+
+export const getCapitalizeFirstLetter = (value) => {
+  if (typeof value !== `string`) {
+    return ``;
+  }
+  return value[0].toUpperCase() + value.slice(1);
+};
+
 
