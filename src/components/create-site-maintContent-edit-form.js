@@ -1,6 +1,8 @@
 import {formatTime, formatDate, getRandomArrayItem, getCapitalizeFirstLetter} from '../utils/common.js';
 import {CITIES, getOffers, DESCRIPTION_ITEMS} from '../mock/events.js';
 import AbstractSmartComponent from './abstract-smart-component.js';
+// import flatpickr from "flatpickr";
+import "flatpickr/dist/flatpickr.min.css";
 
 const createFavoriteBtnMarkup = (name, isActive = true) => {
   return (
@@ -228,8 +230,10 @@ export default class EditForm extends AbstractSmartComponent {
     this._type = null;
     this._submitHandler = null;
     this._favoriteClickHandler = null;
+    this._flatpickr = null;
 
     this._subscribeOnEvents();
+    this._applyFlatpickr();
   }
 
   getTemplate() {
@@ -254,6 +258,7 @@ export default class EditForm extends AbstractSmartComponent {
 
   rerender() {
     super.rerender();
+    this._applyFlatpickr();
   }
 
   recoveryListeners() {
@@ -270,6 +275,13 @@ export default class EditForm extends AbstractSmartComponent {
   setFavoritesInputClickHandler(handler) {
     this.getElement().querySelector(`.event__favorite-icon`).addEventListener(`click`, handler);
     this._favoriteClickHandler = handler;
+  }
+
+  _applyFlatpickr() {
+    if (this._flatpickr) {
+      this._flatpickr.destroy();
+      this._flatpickr = null;
+    }
   }
 
   _subscribeOnEvents() {

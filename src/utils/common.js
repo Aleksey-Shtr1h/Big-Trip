@@ -1,4 +1,6 @@
-export const TRIP_COUNT = 3;
+import moment from "moment";
+
+export const TRIP_COUNT = 15;
 
 const castTimeFormat = (value) => {
   return value < 10 ? `0${value}` : String(value);
@@ -17,13 +19,7 @@ export const formatTime = (date) => {
 };
 
 export const formatDate = (date) => {
-  const dateNow = castTimeFormat(date.getDate());
-  const month = castTimeFormat(date.getMonth() + 1);
-  const year = castTimeFormat(date.getFullYear()).slice(2);
-
-  const fullDate = `${dateNow}/${month}/${year}`;
-
-  return fullDate;
+  return moment(date).format(`DD/MM/YY`);
 };
 
 export const getRandomArrayItem = (array) => {
