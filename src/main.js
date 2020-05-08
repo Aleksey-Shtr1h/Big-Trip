@@ -3,7 +3,9 @@ const headerTripMainElement = headerElement.querySelector(`.trip-main`);
 const headerTripControlsElement = headerElement.querySelector(`.trip-controls`);
 const mainTripEventsElement = document.querySelector(`.trip-events`);
 
+import CardsModel from './model/event-card-model.js';
 import TripDaysController from './controllers/tripDays.js';
+import FilterController from './controllers/filterCards.js';
 
 import InfoContainerComponent from './components/create-site-header-containerInfo.js';
 import HeaderInfoTripComponent from './components/create-site-header-trip-info.js';
@@ -19,31 +21,34 @@ import {generateFilters} from './mock/filter.js';
 import {generateCards} from './mock/events.js';
 import {TRIP_COUNT} from './utils/common.js';
 
+const cards = generateCards(TRIP_COUNT);
+const cardsModel = new CardsModel();
+cardsModel.setCards(cards);
+
 const getBasicBlock = () => {
   renderTemplate(headerTripMainElement, new InfoContainerComponent(), RenderPosition.AFTERBEGIN);
 };
 
 const getHeaderSite = () => {
   const headerTripInfoElement = headerElement.querySelector(`.trip-info`);
-  const filters = generateFilters();
 
   renderTemplate(headerTripInfoElement, new HeaderInfoTripComponent(), RenderPosition.BEFOREEND);
   renderTemplate(headerTripInfoElement, new HeaderCostTripComponent(), RenderPosition.BEFOREEND);
   renderTemplate(headerTripControlsElement, new HeaderSiteMenuComponent(), RenderPosition.AFTERBEGIN);
-  renderTemplate(headerTripControlsElement, new HeaderFilterComponent(filters), RenderPosition.BEFOREEND);
+  const filterController = new FilterController(headerTripControlsElement, cardsModel);
+  filterController.renderFilter();
 };
 
 const getMainContentSite = () => {
-  const cards = generateCards(TRIP_COUNT);
 
   const tripDaysListComponent = new MainTripDaysListComponent();
-  const tripDaysController = new TripDaysController(tripDaysListComponent);
+  const tripDaysController = new TripDaysController(tripDaysListComponent, cardsModel);
 
   if (!cards.length) {
     renderTemplate(mainTripEventsElement, new MainNoPointsComponent(), RenderPosition.BEFOREEND);
   } else {
     renderTemplate(mainTripEventsElement, tripDaysListComponent, RenderPosition.BEFOREEND);
-    tripDaysController.renderDays(cards);
+    tripDaysController.renderDays();
   }
 };
 

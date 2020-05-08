@@ -48,6 +48,7 @@ let mockTripSortDay = dayTripSort;
 
 const generateCard = () => {
   return {
+    id: String(new Date() + Math.random()),
     city: getRandomArrayItem(CITIES),
     typeOfWaypoints: TYPE_OF_WAYPOINTS,
     description: getRandomArrayItem(DESCRIPTION_ITEMS),
@@ -64,8 +65,8 @@ const generateCard = () => {
 const generateCards = (count) => {
   return new Array(count)
     .fill(``)
-    .map(generateCard)
-    .sort((prev, next) => prev.startDate - next.startDate);
+    .map(generateCard);
+    // .sort((prev, next) => prev.startDate - next.startDate);
 };
 
 export {generateCard, generateCards};

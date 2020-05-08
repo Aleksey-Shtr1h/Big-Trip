@@ -2,24 +2,19 @@ import moment from "moment";
 
 export const TRIP_COUNT = 15;
 
-const castTimeFormat = (value) => {
-  return value < 10 ? `0${value}` : String(value);
-};
-
 const castTimeMinutesFormat = (value) => {
   return value < 30 ? `00` : `30`;
 };
 
 export const formatTime = (date) => {
 
-  const hours = castTimeFormat(date.getHours() % 24);
-  const minutes = castTimeMinutesFormat(date.getMinutes());
+  // const minutes = castTimeMinutesFormat(date.getMinutes());
 
-  return `${hours}:${minutes}`;
+  return moment(date).format(`hh:mm`);
 };
 
 export const formatDate = (date) => {
-  return moment(date).format(`DD/MM/YY`);
+  return moment(date).format(`DD/MM/YY hh:mm`);
 };
 
 export const getRandomArrayItem = (array) => {
@@ -44,10 +39,12 @@ export const getArrayTripTime = (time) => {
 
   for (let i = 1; i <= time * 2; i++) {
     let targetDate = new Date();
+    let day = 2;
     let hour = getRandomIntegerNumber(1, 5);
     let minutes = getRandomIntegerNumber(1, 59);
     hourInterval += hour;
     minuteInterval += minutes;
+    targetDate.setDate(targetDate.getDate() - day);
     targetDate.setHours(targetDate.getHours() + hour + hourInterval);
     targetDate.setMinutes(targetDate.getMinutes() + minutes + minuteInterval);
     result.push(targetDate);
@@ -55,6 +52,8 @@ export const getArrayTripTime = (time) => {
 
   return result;
 };
+
+// export const dayTripSort = getArrayTripTime(TRIP_COUNT);
 
 const dayTrip = getArrayTripTime(TRIP_COUNT);
 export const dayTripSort = dayTrip.sort((prev, next) => prev - next).slice();
