@@ -1,15 +1,12 @@
 import moment from "moment";
 
-export const TRIP_COUNT = 15;
+export const TRIP_COUNT = 10;
 
-const castTimeMinutesFormat = (value) => {
-  return value < 30 ? `00` : `30`;
-};
+// const castTimeMinutesFormat = (value) => {
+//   return value < 30 ? `00` : `30`;
+// };
 
 export const formatTime = (date) => {
-
-  // const minutes = castTimeMinutesFormat(date.getMinutes());
-
   return moment(date).format(`hh:mm`);
 };
 
@@ -53,8 +50,6 @@ export const getArrayTripTime = (time) => {
   return result;
 };
 
-// export const dayTripSort = getArrayTripTime(TRIP_COUNT);
-
 const dayTrip = getArrayTripTime(TRIP_COUNT);
 export const dayTripSort = dayTrip.sort((prev, next) => prev - next).slice();
 
@@ -68,7 +63,7 @@ export const getDuration = (start, end) => {
 };
 
 export const getCapitalizeFirstLetter = (value) => {
-  if (typeof value !== `string`) {
+  if (typeof value !== `string` || !value) {
     return ``;
   }
   return value[0].toUpperCase() + value.slice(1);

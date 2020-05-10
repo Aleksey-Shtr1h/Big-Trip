@@ -14,29 +14,29 @@ export default class FilterController {
 
     this._onDataChange = this._onDataChange.bind(this);
     this._onFilterChange = this._onFilterChange.bind(this);
+    this._onFilterClickBtnChange = this._onFilterClickBtnChange.bind(this);
 
     this._cardsModel.setDataChangeHandler(this._onDataChange);
   }
 
   renderFilter() {
     const container = this._container;
-    const cardsAll = this._cardsModel.getCardsAll();
 
     const filterCards = Object.values(FilterType).map((filterType) => {
       return {
         name: filterType,
         checked: filterType === this._activeFilterType,
-      }
+      };
     });
 
     const oldComponent = this._filterComponent;
-
     this._filterComponent = new FilterComponent(filterCards);
     this._filterComponent.setFilterChangeHandler(this._onFilterChange);
 
     if (oldComponent) {
-      raplaceElement(this._filterComponent, oldComponent)
+      raplaceElement(this._filterComponent, oldComponent);
     } else {
+      this._filterComponent.setFilterClickBtn(this._onFilterClickBtnChange);
       renderTemplate(container, this._filterComponent, RenderPosition.BEFOREEND);
     }
   }
@@ -48,5 +48,11 @@ export default class FilterController {
 
   _onDataChange() {
     this.renderFilter();
+  }
+
+  _onFilterClickBtnChange(filterTypeClickEventBtn) {
+    this._activeFilterType = filterTypeClickEventBtn;
+    this._cardsModel.setFilterBtnClick(filterTypeClickEventBtn);
+    this._onDataChange();
   }
 }

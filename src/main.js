@@ -11,13 +11,11 @@ import InfoContainerComponent from './components/create-site-header-containerInf
 import HeaderInfoTripComponent from './components/create-site-header-trip-info.js';
 import HeaderCostTripComponent from './components/create-site-header-trip-cost.js';
 import HeaderSiteMenuComponent from './components/create-site-header-trip-menu.js';
-import HeaderFilterComponent from './components/create-site-header-trip-filter.js';
 
 import MainNoPointsComponent from './components/create-site-maintContent-no-points.js';
 import MainTripDaysListComponent from './components/create-site-maintContent-listDay.js';
 
 import {renderTemplate, RenderPosition} from './utils/render.js';
-import {generateFilters} from './mock/filter.js';
 import {generateCards} from './mock/events.js';
 import {TRIP_COUNT} from './utils/common.js';
 

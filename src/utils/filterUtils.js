@@ -2,11 +2,11 @@ import {FilterType} from '../constants.js';
 
 const getFutureCards = (cards) => {
   return cards.filter((card) => card.startDate > new Date());
-}
+};
 
 const getPastCards = (cards) => {
   return cards.filter((card) => card.startDate < new Date());
-}
+};
 
 
 export const getCardsByFilter = (cards, filterType) => {
@@ -21,4 +21,4 @@ export const getCardsByFilter = (cards, filterType) => {
   }
 
   return cards;
-}
+};

@@ -66,7 +66,6 @@ const generateCards = (count) => {
   return new Array(count)
     .fill(``)
     .map(generateCard);
-    // .sort((prev, next) => prev.startDate - next.startDate);
 };
 
 export {generateCard, generateCards};

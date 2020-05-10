@@ -2,17 +2,18 @@ import {FilterType} from '../constants.js';
 import {getCardsByFilter} from '../utils/filterUtils.js';
 
 export default class CardsModel {
-  constructor () {
+  constructor() {
     this._cards = [];
     this._activeFilterType = FilterType.EVERYTHING;
 
     this._dataChangeHandlers = [];
     this._filterChangeHandlers = [];
+    this._filterBtnClickChangeHandlers = [];
   }
 
 
   getCards() {
-    return getCardsByFilter(this._cards, this._activeFilterType);
+    return getCardsByFilter(this._cards, this._activeFilterType).slice();
   }
 
   getCardsAll() {
@@ -69,6 +70,15 @@ export default class CardsModel {
   setFilter(filterType) {
     this._activeFilterType = filterType;
     this._callHandlers(this._filterChangeHandlers);
+  }
+
+  setFilterBtnClickChangeHandlers(handler) {
+    this._filterBtnClickChangeHandlers.push(handler);
+  }
+
+  setFilterBtnClick(filterType) {
+    this._activeFilterType = filterType;
+    this._callHandlers(this._filterBtnClickChangeHandlers);
   }
 
   _callHandlers(handlers) {

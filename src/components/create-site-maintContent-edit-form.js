@@ -1,14 +1,14 @@
 // import flatpickr from 'flatpickr';
-// import 'flatpickr/dist/flatpickr.min.css';
-// import 'flatpickr/dist/themes/light.css';
+import 'flatpickr/dist/flatpickr.min.css';
+import 'flatpickr/dist/themes/light.css';
 
 
-import {formatTime, formatDate, getRandomArrayItem, getCapitalizeFirstLetter} from '../utils/common.js';
+import {formatDate, getRandomArrayItem, getCapitalizeFirstLetter} from '../utils/common.js';
 import {CITIES, getOffers, DESCRIPTION_ITEMS} from '../mock/events.js';
 import AbstractSmartComponent from './abstract-smart-component.js';
 import "flatpickr/dist/flatpickr.min.css";
 
-import moment from "moment";
+// import moment from "moment";
 
 const createFavoriteBtnMarkup = (name, isActive = true, countCard) => {
   return (
@@ -106,13 +106,11 @@ const createRepeatingPhotoMarkup = (counts) => {
 
 const createEditFormTemplate = (card, countCard, attributes = {}) => {
 
-  const {city, typeOfWaypoints, description, startDate, endDate, offer, price, photosCount, isFavorite, randomWaypointItem, type} = attributes;
+  const {city, typeOfWaypoints, description, startDate, endDate, offer, price, photosCount, isFavorite, randomWaypointItem} = attributes;
   const isDateShowing = !!startDate;
 
-  // const time = isDateShowing ? formatTime(startDate) : ``;
   const date = isDateShowing ? formatDate(startDate) : ``;
 
-  // const nextTime = isDateShowing ? formatTime(endDate) : ``;
   const nextDate = isDateShowing ? formatDate(endDate) : ``;
 
   const favoritesButton = createFavoriteBtnMarkup(`favorite`, isFavorite, countCard);
@@ -156,13 +154,14 @@ const createEditFormTemplate = (card, countCard, attributes = {}) => {
             <label class="event__label  event__type-output" for="event-destination-${countCard}">
               ${isTypeAvailability} to
             </label>
-            <input class="event__input  event__input--destination" id="event-destination-${countCard}"
+            <select class="event__input  event__input--destination" id="event-destination-${countCard}"
               type="text" name="event-destination"
               value="${city}"
               list="destination-list-${countCard}">
             <datalist id="destination-list-${countCard}">
-              ${CITIES.map((it) =>`<option value="${it}"></option>`).join(`\n \n`)}
+              ${CITIES.map((it) =>`<option value=${it} ${it === city ? `selected` : ``}>${it}</option>`).join(`\n \n`)}
             </datalist>
+            </select>
           </div>
 
           <div class="event__field-group  event__field-group--time">
@@ -182,7 +181,7 @@ const createEditFormTemplate = (card, countCard, attributes = {}) => {
               <span class="visually-hidden">Price</span>
               &euro;
             </label>
-            <input class="event__input  event__input--price" id="event-price-${countCard}" type="text" name="event-price" value="${price}">
+            <input class="event__input  event__input--price" id="event-price-${countCard}" type="number" name="event-price" value="${price}">
           </div>
 
           <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
@@ -290,6 +289,7 @@ export default class EditForm extends AbstractSmartComponent {
     this._offer = cards.offer;
     this._description = cards.description;
     this._city = cards.city;
+    this._isFavorite = cards.isFavorite;
     this._startDate = cards.startDate;
     this._endDate = cards.endDate;
 
@@ -303,7 +303,7 @@ export default class EditForm extends AbstractSmartComponent {
 
   recoveryListeners() {
     this.setSubmitHandler(this._submitHandler);
-    this.setFavoritesInputClickHandler(this._favoriteClickHandler);
+    // this.setFavoritesInputClickHandler(this._favoriteClickHandler);
     this.setDeleteBtnClickHandler(this._deleteButtonClickHandler);
     this._subscribeOnEvents();
   }
@@ -313,10 +313,10 @@ export default class EditForm extends AbstractSmartComponent {
     this._submitHandler = handler;
   }
 
-  setFavoritesInputClickHandler(handler) {
-    this.getElement().querySelector(`.event__favorite-icon`).addEventListener(`click`, handler);
-    this._favoriteClickHandler = handler;
-  }
+  // setFavoritesInputClickHandler(handler) {
+  //   this.getElement().querySelector(`.event__favorite-icon`).addEventListener(`click`, handler);
+  //   this._favoriteClickHandler = handler;
+  // }
 
   setDeleteBtnClickHandler(handler) {
     this.getElement().querySelector(`.event__reset-btn`).addEventListener(`click`, handler);
@@ -334,26 +334,26 @@ export default class EditForm extends AbstractSmartComponent {
   }
 
   getData() {
-    // const form = this.getElement().querySelector(`.event--edit`);
-
-    // const formData = new FormData(form);
-
     return parseFormData(this._city, this._typeOfWaypoints, this._description, this._startDate, this._endDate, this._offer, this._price, this._photosCount, this._isFavorite, this._randomWaypointItem, this._type);
   }
 
   _applyFlatpickr() {
-    if (this._flatpickr) {
-      this._flatpickr.destroy();
-      this._flatpickr = null;
-    }
+    // this._startDate = flatpickr(this.getElement().querySelector(`input[name="event-start-time"]`), {
+    //   allowInput: true,
+    //   defaultDate: this._cards.startDate,
+    //   dateFormat: `d/m/Y H:i`,
+    //   minDate: this._cards.startDate,
+    //   enableTime: true
+    // });
   }
 
   _subscribeOnEvents() {
     const element = this.getElement();
     const typeListElement = element.querySelector(`.event__type-list`);
     const inputDestinationElement = element.querySelector(`.event__input--destination`);
-    const inputStartTimeElement = element.querySelector(`#event-start-time-${this._countCard}`);
-    const inputEndTimeElement = element.querySelector(`#event-end-time-${this._countCard}`);
+    // const inputStartTimeElement = element.querySelector(`#event-start-time-${this._countCard}`);
+    // const inputEndTimeElement = element.querySelector(`#event-end-time-${this._countCard}`);
+    const eventFavorite = element.querySelector(`.event__favorite-icon`);
 
 
     typeListElement.addEventListener(`click`, (evt) => {
@@ -367,6 +367,11 @@ export default class EditForm extends AbstractSmartComponent {
     inputDestinationElement.addEventListener(`change`, (evt) => {
       this._city = evt.target.value;
       this._description = getRandomArrayItem(DESCRIPTION_ITEMS);
+      this.rerender();
+    });
+
+    eventFavorite.addEventListener(`click`, () => {
+      this._isFavorite = !this._isFavorite;
       this.rerender();
     });
 

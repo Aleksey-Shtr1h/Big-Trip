@@ -44,6 +44,7 @@ export default class FilterComponent extends AbstractComponent {
   constructor(filters) {
     super();
     this._filters = filters;
+    this._newEventBtn = document.querySelector(`.trip-main__event-add-btn`);
   }
 
   getTemplate() {
@@ -51,10 +52,20 @@ export default class FilterComponent extends AbstractComponent {
   }
 
   setFilterChangeHandler(handler) {
-    this.getElement().addEventListener(`change`, (evt) => {
+    this.getElement().addEventListener(`click`, (evt) => {
       const filterName = getFilterNameById(evt.target.id);
       handler(filterName);
     });
   }
 
+  setFilterClickBtn(handler) {
+    this._newEventBtn.addEventListener(`click`, () => {
+      const filterClickBtn = FilterType.EVERYTHING;
+      handler(filterClickBtn);
+    });
+    this._newEventBtn.removeEventListener(`click`, () => {
+      const filterClickBtn = FilterType.EVERYTHING;
+      handler(filterClickBtn);
+    });
+  }
 }
