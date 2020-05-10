@@ -1,4 +1,11 @@
 import AbstractComponent from './abstract-component.js';
+import {FilterType} from '../constants.js';
+
+const FILTER_ID_PREFIX = `filter-`;
+
+const getFilterNameById = (id) => {
+  return id.substring(FILTER_ID_PREFIX.length);
+};
 
 const createFilterMarkup = (filter, isChecked) => {
   const {name} = filter;
@@ -13,14 +20,16 @@ const createFilterMarkup = (filter, isChecked) => {
       value="${name}"
       ${isChecked ? `checked` : ``}>
 
-      <label class="trip-filters__filter-label" for="filter-${name}">${name}</label>
+      <label class="trip-filters__filter-label" for="filter-${name}">
+        ${name}
+      </label>
     </div>`
   );
 };
 
 const createFilterTripTemplate = (filters) => {
-  const filterMarkup = filters.map((it, i) => {
-    return createFilterMarkup(it, i === 0);
+  const filterMarkup = filters.map((it) => {
+    return createFilterMarkup(it, it.checked);
   }).join(`\n \n`);
 
   return (
@@ -31,14 +40,32 @@ const createFilterTripTemplate = (filters) => {
   );
 };
 
-export default class Filter extends AbstractComponent {
+export default class FilterComponent extends AbstractComponent {
   constructor(filters) {
     super();
     this._filters = filters;
+    this._newEventBtn = document.querySelector(`.trip-main__event-add-btn`);
   }
 
   getTemplate() {
     return createFilterTripTemplate(this._filters);
   }
 
+  setFilterChangeHandler(handler) {
+    this.getElement().addEventListener(`click`, (evt) => {
+      const filterName = getFilterNameById(evt.target.id);
+      handler(filterName);
+    });
+  }
+
+  setFilterClickBtn(handler) {
+    this._newEventBtn.addEventListener(`click`, () => {
+      const filterClickBtn = FilterType.EVERYTHING;
+      handler(filterClickBtn);
+    });
+    this._newEventBtn.removeEventListener(`click`, () => {
+      const filterClickBtn = FilterType.EVERYTHING;
+      handler(filterClickBtn);
+    });
+  }
 }

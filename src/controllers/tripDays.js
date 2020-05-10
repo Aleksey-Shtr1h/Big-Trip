@@ -6,26 +6,23 @@ const SortingFunction = {
 
 const mainTripEventsElement = document.querySelector(`.trip-events`);
 
-import TripCardController from './tripCards.js';
+import TripCardController, {Modes as CardControllerModes, EmptyCard} from './tripCards.js';
 import MainSortTripComponent, {SortType} from '../components/create-site-maintContent-filter-sort.js';
 import MainNumberDayComponent from '../components/create-site-maintContent-day.js';
 import MainListWaypointComponent from '../components/create-site-maintContent-listWaypoint.js';
 
-import {renderTemplate, RenderPosition} from '../utils/render.js';
+import {renderTemplate, RenderPosition, remove} from '../utils/render.js';
 
 import {generateSortOptions} from '../mock/sortOption.js';
 
 const sortOptions = generateSortOptions();
 
-const renderTripCards = (cardsSort, container, day, onDataChange, onViewChange) => {
-  return cardsSort.map((countCard) => {
-    const tripCardController = new TripCardController(container, onDataChange, onViewChange);
-    if (countCard.startDate.toDateString() === day) {
-      tripCardController.renderTripCard(countCard);
-    }
-    return tripCardController;
-  });
+const renderTripCards = (card, count, container, onDataChange, onViewChange) => {
+  const tripCardController = new TripCardController(container, onDataChange, onViewChange);
+  tripCardController.renderTripCard(card, count + 1, CardControllerModes.DEFAULT);
+  return tripCardController;
 };
+
 
 const getSortedCards = (cards, sortType) => {
   let sortedCards = [];
@@ -38,62 +35,116 @@ const getSortedCards = (cards, sortType) => {
 
 export default class TripDaysController {
 
-  constructor(container) {
+  constructor(container, cardsModel) {
     this._container = container;
+    this._cardsModel = cardsModel;
 
-    this._cardsTrip = [];
     this._daysTrip = [];
+    this._showedDay = [];
     this._showedCardControllers = [];
 
     this._sortComponent = new MainSortTripComponent(sortOptions);
+
     this._numberDayComponent = null;
     this._listWaypointComponent = null;
+    this._creatingCard = null;
+    this._sortType = null;
 
     this._onDataChange = this._onDataChange.bind(this);
     this._onViewChange = this._onViewChange.bind(this);
     this._onSortTypeChange = this._onSortTypeChange.bind(this);
+    this._onFilterChange = this._onFilterChange.bind(this);
 
     this._sortComponent.setSortTypeChangeHandler(this._onSortTypeChange);
+    this._cardsModel.setFilterChangeHandler(this._onFilterChange);
+    this._cardsModel.setFilterBtnClickChangeHandlers(this._onFilterChange);
   }
 
-  renderDays(cardsTrip) {
+  renderDays() {
 
-    this._cardsTrip = cardsTrip;
+    const cardsTrip = this._cardsModel.getCards();
 
-    this._daysTrip = [...new Set(this._cardsTrip.map((card) => card.startDate.toDateString()))];
+    this._daysTrip = [...new Set(cardsTrip
+      .sort((prev, next) => prev.startDate - next.startDate)
+      .map((card) => card.startDate.toDateString()))];
 
     const mainTripDaysListElement = this._container.getElement();
 
     this._sortComponent.getElement().remove();
     renderTemplate(mainTripEventsElement, this._sortComponent, RenderPosition.AFTERBEGIN);
 
-    this._renderTripDays(mainTripDaysListElement, this._cardsTrip);
+    this._renderTripDays(mainTripDaysListElement, cardsTrip);
   }
 
   _renderTripDays(container, tripCards) {
+    this._newEvent();
     this._daysTrip.forEach((day, index) => {
+
       this._numberDayComponent = new MainNumberDayComponent(day, index);
+
       this._listWaypointComponent = new MainListWaypointComponent();
 
-      renderTemplate(container, this._numberDayComponent, RenderPosition.BEFOREEND);
+      this._showedDay.push(this._numberDayComponent);
 
-      renderTemplate(this._numberDayComponent.getElement(), this._listWaypointComponent, RenderPosition.BEFOREEND);
+      tripCards.map((card, count) => {
+        if (card.startDate.toDateString() === day) {
 
-      const newCards = renderTripCards(tripCards, this._listWaypointComponent.getElement(), day, this._onDataChange, this._onViewChange);
-      this._showedCardControllers = this._showedCardControllers.concat(newCards);
+          renderTemplate(container, this._numberDayComponent, RenderPosition.BEFOREEND);
+
+          renderTemplate(this._numberDayComponent.getElement(), this._listWaypointComponent, RenderPosition.BEFOREEND);
+
+          const newCards = renderTripCards(card, count, this._listWaypointComponent.getElement(), this._onDataChange, this._onViewChange);
+          this._showedCardControllers = this._showedCardControllers.concat(newCards);
+        }
+      });
     });
   }
 
+  _updateCards() {
+    const mainTripDaysListElement = this._container.getElement();
+    this._removeDay();
+    this._removeCards();
+    this._renderTripDays(mainTripDaysListElement, this._cardsModel.getCards());
+  }
+
+  _removeCards() {
+    this._showedCardControllers.forEach((cardController) => cardController.destroy());
+    this._showedCardControllers = [];
+  }
+
+  _removeDay() {
+    this._showedDay.forEach((dayComponent) => remove(dayComponent));
+    this._showedDay = [];
+  }
+
   _onDataChange(cardController, oldData, newData) {
-    const index = this._cardsTrip.findIndex((it) => it === oldData);
 
-    if (index === -1) {
-      return;
+    if (oldData === EmptyCard) {
+      this._creatingCard = null;
+      if (newData === null) {
+        cardController.destroy();
+        this._updateCards();
+      } else {
+        this._cardsModel.addCards(newData);
+
+        cardController.renderTripCard(newData, -1, CardControllerModes.DEFAULT);
+
+        const destroyedCards = this._showedCardControllers.pop();
+        destroyedCards.destroy();
+
+        this._showedCardControllers = [].concat(cardController, this._showedCardControllers);
+        this._updateCards();
+      }
+    } else if (newData === null) {
+      this._cardsModel.removeCards(oldData.id);
+      this._updateCards();
+    } else {
+      const isSuccess = this._cardsModel.updateCards(oldData.id, newData);
+
+      if (isSuccess) {
+        cardController.renderTripCard(newData, -1, CardControllerModes.DEFAULT);
+      }
     }
-
-    this._cardsTrip = [].concat(this._cardsTrip.slice(0, index), newData, this._cardsTrip.slice(index + 1));
-
-    cardController.renderTripCard(this._cardsTrip[index]);
   }
 
   _onViewChange() {
@@ -102,14 +153,38 @@ export default class TripDaysController {
 
   _onSortTypeChange(sortType) {
     const mainTripDaysListElement = this._container.getElement();
-    const sortedCards = getSortedCards(this._cardsTrip, sortType);
 
-    this._sortComponent.getElement().remove();
-    renderTemplate(mainTripEventsElement, this._sortComponent, RenderPosition.AFTERBEGIN);
+    const sortedCards = getSortedCards(this._cardsModel.getCards(), sortType);
 
-    mainTripDaysListElement.innerHTML = ``;
+    this._removeCards();
+    this._removeDay();
+    this._renderTripDays(mainTripDaysListElement, sortedCards);
+  }
 
-    const newCards = this._renderTripDays(mainTripDaysListElement, sortedCards);
-    this._showedCardController = newCards;
+  _onFilterChange() {
+    this._updateCards();
+  }
+
+  _newEvent() {
+    const newEventBtn = document.querySelector(`.trip-main__event-add-btn`);
+    newEventBtn.removeEventListener(`click`, () => {
+      this.createCard();
+    });
+    newEventBtn.addEventListener(`click`, () => {
+      this.createCard();
+    });
+  }
+
+  createCard() {
+
+    if (this._creatingCard) {
+      return;
+    }
+
+    this._creatingCard = new TripCardController(this._container.getElement(), this._onDataChange, this._onViewChange);
+
+    this._creatingCard.renderTripCard(EmptyCard, -1, CardControllerModes.ADDING);
+
+    this._onViewChange();
   }
 }

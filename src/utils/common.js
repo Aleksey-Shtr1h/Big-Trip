@@ -1,29 +1,17 @@
-export const TRIP_COUNT = 3;
+import moment from "moment";
 
-const castTimeFormat = (value) => {
-  return value < 10 ? `0${value}` : String(value);
-};
+export const TRIP_COUNT = 10;
 
-const castTimeMinutesFormat = (value) => {
-  return value < 30 ? `00` : `30`;
-};
+// const castTimeMinutesFormat = (value) => {
+//   return value < 30 ? `00` : `30`;
+// };
 
 export const formatTime = (date) => {
-
-  const hours = castTimeFormat(date.getHours() % 24);
-  const minutes = castTimeMinutesFormat(date.getMinutes());
-
-  return `${hours}:${minutes}`;
+  return moment(date).format(`hh:mm`);
 };
 
 export const formatDate = (date) => {
-  const dateNow = castTimeFormat(date.getDate());
-  const month = castTimeFormat(date.getMonth() + 1);
-  const year = castTimeFormat(date.getFullYear()).slice(2);
-
-  const fullDate = `${dateNow}/${month}/${year}`;
-
-  return fullDate;
+  return moment(date).format(`DD/MM/YY hh:mm`);
 };
 
 export const getRandomArrayItem = (array) => {
@@ -48,10 +36,12 @@ export const getArrayTripTime = (time) => {
 
   for (let i = 1; i <= time * 2; i++) {
     let targetDate = new Date();
+    let day = 2;
     let hour = getRandomIntegerNumber(1, 5);
     let minutes = getRandomIntegerNumber(1, 59);
     hourInterval += hour;
     minuteInterval += minutes;
+    targetDate.setDate(targetDate.getDate() - day);
     targetDate.setHours(targetDate.getHours() + hour + hourInterval);
     targetDate.setMinutes(targetDate.getMinutes() + minutes + minuteInterval);
     result.push(targetDate);
@@ -73,7 +63,7 @@ export const getDuration = (start, end) => {
 };
 
 export const getCapitalizeFirstLetter = (value) => {
-  if (typeof value !== `string`) {
+  if (typeof value !== `string` || !value) {
     return ``;
   }
   return value[0].toUpperCase() + value.slice(1);
