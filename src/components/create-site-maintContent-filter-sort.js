@@ -7,7 +7,7 @@ export const SortType = {
 };
 
 const createSortOptionMarkup = (option, isChecked) => {
-  const {name, type} = option;
+  const {name} = option;
 
   return (
     `<div class="trip-sort__item  trip-sort__item--${name}">
@@ -19,7 +19,7 @@ const createSortOptionMarkup = (option, isChecked) => {
       value="sort-${name}"
       ${isChecked ? `checked` : ``}>
 
-      <label class="trip-sort__btn" for="sort-${name}" data-sort-type="${type}">
+      <label class="trip-sort__btn" for="sort-${name}" data-sort-type="${name}">
         ${name}
 
         ${isChecked ? `` : `<svg class="trip-sort__direction-icon" width="8" height="10" viewBox="0 0 8 10">
@@ -33,8 +33,8 @@ const createSortOptionMarkup = (option, isChecked) => {
 
 const createSortTripTemplate = (sortOptions) => {
 
-  const sortOptionMarkup = sortOptions.map((it, i) => {
-    return createSortOptionMarkup(it, i === 0);
+  const sortOptionMarkup = sortOptions.map((it) => {
+    return createSortOptionMarkup(it, it.checked);
   }).join(`\n \n`);
 
   return (
@@ -52,7 +52,9 @@ export default class SortTrip extends AbstractComponent {
   constructor(sortOptions) {
     super();
     this._sortOptions = sortOptions;
-    this._currentSortType = SortType.EVENT;
+    this._currentSortType = null;
+
+    this._newEventBtn = document.querySelector(`.trip-main__event-add-btn`);
   }
 
   getTemplate() {
@@ -64,9 +66,7 @@ export default class SortTrip extends AbstractComponent {
   }
 
   setSortTypeChangeHandler(handler) {
-
     this.getElement().addEventListener(`click`, (evt) => {
-
       evt.preventDefault();
 
       if (evt.target.tagName !== `LABEL`) {
@@ -80,9 +80,19 @@ export default class SortTrip extends AbstractComponent {
       }
 
       this._currentSortType = sortType;
-
       handler(this._currentSortType);
     });
-
   }
+
+  // setSortClickBtn(handler) {
+  //   console.log('!!!!');
+  //   this._newEventBtn.addEventListener(`click`, () => {
+  //     const sortClickBtn = `event`;
+  //     handler(sortClickBtn);
+  //   });
+  //   this._newEventBtn.removeEventListener(`click`, () => {
+  //     const sortClickBtn = `event`;
+  //     handler(sortClickBtn);
+  //   });
+  // }
 }

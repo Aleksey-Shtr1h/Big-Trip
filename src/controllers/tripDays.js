@@ -1,8 +1,12 @@
+import {FilterSortType} from '../constants.js';
+
 const SortingFunction = {
   [SortType.TIME]: (a, b) => (a.endDate - a.startDate) - (b.endDate - b.startDate),
   [SortType.PRICE]: (a, b) => a.price - b.price,
   [SortType.EVENT]: (a, b) => b.randomWaypointItem - a.randomWaypointItem,
 };
+
+const SortOptions = [`event`, `time`, `price`];
 
 const mainTripEventsElement = document.querySelector(`.trip-events`);
 
@@ -11,11 +15,7 @@ import MainSortTripComponent, {SortType} from '../components/create-site-maintCo
 import MainNumberDayComponent from '../components/create-site-maintContent-day.js';
 import MainListWaypointComponent from '../components/create-site-maintContent-listWaypoint.js';
 
-import {renderTemplate, RenderPosition, remove} from '../utils/render.js';
-
-import {generateSortOptions} from '../mock/sortOption.js';
-
-const sortOptions = generateSortOptions();
+import {renderTemplate, RenderPosition, remove, raplaceElement} from '../utils/render.js';
 
 const renderTripCards = (card, count, container, onDataChange, onViewChange) => {
   const tripCardController = new TripCardController(container, onDataChange, onViewChange);
@@ -43,7 +43,9 @@ export default class TripDaysController {
     this._showedDay = [];
     this._showedCardControllers = [];
 
-    this._sortComponent = new MainSortTripComponent(sortOptions);
+    this._activeSortType = FilterSortType.EVENT;
+    // this._sortComponent = new MainSortTripComponent(sortOptions);
+    this._sortComponent = null;
 
     this._numberDayComponent = null;
     this._listWaypointComponent = null;
@@ -55,7 +57,7 @@ export default class TripDaysController {
     this._onSortTypeChange = this._onSortTypeChange.bind(this);
     this._onFilterChange = this._onFilterChange.bind(this);
 
-    this._sortComponent.setSortTypeChangeHandler(this._onSortTypeChange);
+    // this._sortComponent.setSortTypeChangeHandler(this._onSortTypeChange);
     this._cardsModel.setFilterChangeHandler(this._onFilterChange);
     this._cardsModel.setFilterBtnClickChangeHandlers(this._onFilterChange);
   }
@@ -70,13 +72,12 @@ export default class TripDaysController {
 
     const mainTripDaysListElement = this._container.getElement();
 
-    this._sortComponent.getElement().remove();
-    renderTemplate(mainTripEventsElement, this._sortComponent, RenderPosition.AFTERBEGIN);
 
     this._renderTripDays(mainTripDaysListElement, cardsTrip);
   }
 
   _renderTripDays(container, tripCards) {
+    this.getFilterSort();
     this._newEvent();
     this._daysTrip.forEach((day, index) => {
 
@@ -153,7 +154,7 @@ export default class TripDaysController {
 
   _onSortTypeChange(sortType) {
     const mainTripDaysListElement = this._container.getElement();
-
+    this._activeSortType = sortType;
     const sortedCards = getSortedCards(this._cardsModel.getCards(), sortType);
 
     this._removeCards();
@@ -186,5 +187,26 @@ export default class TripDaysController {
     this._creatingCard.renderTripCard(EmptyCard, -1, CardControllerModes.ADDING);
 
     this._onViewChange();
+  }
+
+  getFilterSort() {
+    const filterSort = Object.values(FilterSortType).map((sortType) => {
+      return {
+        name: sortType,
+        checked: sortType === this._activeSortType,
+      };
+    });
+
+    const oldComponent = this._sortComponent;
+    this._sortComponent = new MainSortTripComponent(filterSort);
+    this._sortComponent.setSortTypeChangeHandler(this._onSortTypeChange);
+
+    this._sortComponent.getElement().remove();
+
+    if (oldComponent) {
+      raplaceElement(this._sortComponent, oldComponent);
+    } else {
+      renderTemplate(mainTripEventsElement, this._sortComponent, RenderPosition.AFTERBEGIN);
+    }
   }
 }
