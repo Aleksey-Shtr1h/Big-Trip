@@ -6,8 +6,6 @@ const SortingFunction = {
   [SortType.EVENT]: (a, b) => b.randomWaypointItem - a.randomWaypointItem,
 };
 
-const SortOptions = [`event`, `time`, `price`];
-
 const mainTripEventsElement = document.querySelector(`.trip-events`);
 
 import TripCardController, {Modes as CardControllerModes, EmptyCard} from './tripCards.js';
@@ -208,5 +206,13 @@ export default class TripDaysController {
     } else {
       renderTemplate(mainTripEventsElement, this._sortComponent, RenderPosition.AFTERBEGIN);
     }
+  }
+
+  hide() {
+    this._container.hide();
+  }
+
+  show() {
+    this._container.show();
   }
 }
