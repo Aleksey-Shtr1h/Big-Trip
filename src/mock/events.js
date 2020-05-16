@@ -10,11 +10,11 @@ const TYPE_OF_WAYPOINTS = {
 
 
 const OFFERS = [
-  {type: `luggage`, name: `Add luggage`, price: getRandomIntegerNumber(20, 250)},
-  {type: `comfort`, name: `Switch to comfort`, price: getRandomIntegerNumber(20, 250)},
-  {type: `meal`, name: `Add meal`, price: getRandomIntegerNumber(20, 250)},
-  {type: `seats`, name: `Choose seats`, price: getRandomIntegerNumber(20, 250)},
-  {type: `train`, name: `Travel by train`, price: getRandomIntegerNumber(20, 250)},
+  {title: `Add luggage`, price: getRandomIntegerNumber(20, 250)},
+  {title: `Switch to comfort`, price: getRandomIntegerNumber(20, 250)},
+  {title: `Add meal`, price: getRandomIntegerNumber(20, 250)},
+  {title: `Choose seats`, price: getRandomIntegerNumber(20, 250)},
+  {title: `Travel by train`, price: getRandomIntegerNumber(20, 250)},
 ];
 
 export const DESCRIPTION_ITEMS = [
@@ -30,16 +30,9 @@ export const getOffers = () => {
   return shuffleArray(options);
 };
 
-const getArrayPhotos = (count) => {
-  const result = [];
-
-  let index = 1;
-
-  while (index <= count) {
-    result.push(index);
-    index++;
-  }
-  return shuffleArray(result);
+const getArrayPhotos = () => {
+  const result = [{scr: `img/photos/1.jpg`}, {scr: `img/photos/2.jpg`}, {scr: `img/photos/3.jpg`}];
+  return result;
 };
 
 const {transfers, activitys} = TYPE_OF_WAYPOINTS;
@@ -56,7 +49,7 @@ const generateCard = () => {
     endDate: mockTripSortDay.splice(0, 1)[0],
     offer: getOffers(),
     price: getRandomIntegerNumber(100, 200),
-    photosCount: getArrayPhotos(getRandomIntegerNumber(1, 5)),
+    photosCount: getArrayPhotos(),
     isFavorite: true,
     randomWaypointItem: getRandomArrayItem(randomWaypointItem),
   };
