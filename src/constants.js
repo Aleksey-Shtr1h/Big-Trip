@@ -8,4 +8,4 @@ export const FilterSortType = {
   EVENT: `event`,
   TIME: `time`,
   PRICE: `price`,
-}
+};

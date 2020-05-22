@@ -1,10 +1,8 @@
-// import flatpickr from 'flatpickr';
+import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 import 'flatpickr/dist/themes/light.css';
 
-
-import {formatDate, getRandomArrayItem, getCapitalizeFirstLetter} from '../utils/common.js';
-import {CITIES, getOffers, DESCRIPTION_ITEMS} from '../mock/events.js';
+import {getCapitalizeFirstLetter} from '../utils/common.js';
 import AbstractSmartComponent from './abstract-smart-component.js';
 import "flatpickr/dist/flatpickr.min.css";
 
@@ -16,17 +14,28 @@ const TYPE_OF_WAYPOINTS = {
   wayPointsAll: [`Taxi`, `Bus`, `Train`, `Ship`, `Drive`, `Flight`, `Check-in`, `Sightseeing`, `Restaurant`],
 };
 
-const createFavoriteBtnMarkup = (name, isActive = true, countCard) => {
+const DefaultData = {
+  deleteButtonText: `Delete`,
+  saveButtonText: `Save`,
+};
+
+const createFavoriteBtnMarkup = (name, isActive = true, countCard, showElement) => {
   return (
     `<input
+      disabled
       id="event-${name}-${countCard}"
       class="event__${name}-checkbox  visually-hidden"
       type="checkbox"
       name="event-${name}"
       ${isActive ? `checked` : ``}>
 
-    <label class="event__${name}-btn" for="event-${name}-${countCard}">
-      <span class="visually-hidden">Add to ${name}</span>
+    <label
+      class="event__${name}-btn ${showElement ? `visually-hidden` : ``}"
+      for="event-${name}-${countCard}">
+      <span class="visually-hidden">
+        Add to ${name}
+      </span>
+
       <svg class="event__${name}-icon" width="28" height="28" viewBox="0 0 28 28">
         <path d="M14 21l-8.22899 4.3262 1.57159-9.1631L.685209 9.67376 9.8855 8.33688 14 0l4.1145 8.33688 9.2003 1.33688-6.6574 6.48934 1.5716 9.1631L14 21z"/>
       </svg>
@@ -37,7 +46,7 @@ const createFavoriteBtnMarkup = (name, isActive = true, countCard) => {
 const createRepeatingOffersMarkup = (options, countCard) => {
   return options.map((option, index) => {
     const {title, price} = option;
-    const isChecked = true;
+    const isChecked = countCard !== -2 ? true : false;
     return (
       `<div class="event__offer-selector">
         <input
@@ -100,41 +109,60 @@ const createRepeatingActivityMarkup = (typeOfWaypoints, randomItem, countCard) =
   return result;
 };
 
-const createRepeatingPhotoMarkup = (counts) => {
-
-  const result = counts.map((count) => {
-    const {scr} = count;
+const createRepeatingPhotoMarkup = (photos) => {
+  const result = photos.map((photo) => {
     return (
-      `<img class="event__photo" src="${scr}" alt="Event photo">`
+      `<img class="event__photo" src="${photo.src}" alt="${photo.description}">`
     );
   }).join(`\n \n`);
 
   return result;
 };
 
+const getCities = (distonations) => {
+  return distonations.map((distonation) => distonation.name);
+};
 
-const createEditFormTemplate = (card, countCard, attributes = {}) => {
-  const {startDate, endDate, price, photosCount} = card;
-  const {city, description, offer, isFavorite, randomWaypointItem} = attributes;
+const getCitiesMarkup = (citiesArray, city) => {
+  return citiesArray.map((cityCard) => {
+    return (`<option value="${cityCard}" ${cityCard === city ? `selected` : ``}>${cityCard}</option>`
+    );
+  }).join(`\n \n`);
+};
 
-  const isDateShowing = !!startDate;
 
-  const favoritesButton = createFavoriteBtnMarkup(`favorite`, isFavorite, countCard);
+const createEditFormTemplate = (card, countCard, distonations, attributes = {}) => {
+  const {price} = card;
+  const {city, description, offer, isFavorite, randomWaypointItem, photosCount, startDate, endDate, externalData} = attributes;
+
+  const showOffers = (offer.length === 0) ? true : false;
+  const showPhotos = (photosCount.length === 0) ? true : false;
+  const valueCountNewEvent = (countCard === -2) ? true : false;
+
+  const cities = getCities(distonations);
+  const citiesMarkup = getCitiesMarkup(cities, city);
+
+  const favoritesButton = createFavoriteBtnMarkup(`favorite`, isFavorite, countCard, valueCountNewEvent);
 
   const repeatingOffersMarkup = createRepeatingOffersMarkup(offer, countCard);
 
   const typeUpper = getCapitalizeFirstLetter(randomWaypointItem);
   const isTypeAvailability = typeUpper ? typeUpper : randomWaypointItem;
 
+  const replaceInTo = TYPE_OF_WAYPOINTS.activitys.includes(isTypeAvailability);
+
   const repeatingTransfersMarkup = createRepeatingTransferMarkup(TYPE_OF_WAYPOINTS.transfers, isTypeAvailability);
 
   const repeatingActivityMarkup = createRepeatingActivityMarkup(TYPE_OF_WAYPOINTS.activitys, isTypeAvailability, countCard);
   const repeatingPhotoMarkup = createRepeatingPhotoMarkup(photosCount);
 
+  const deleteButtonText = externalData.deleteButtonText;
+  const saveButtonText = externalData.saveButtonText;
 
   return (
     `<li class="trip-events__item">
-      <form class="event  event--edit" action="#" method="post">
+      <form
+      class="${valueCountNewEvent ? `trip-events__item` : ``} event  event--edit" action="#" method="post">
         <header class="event__header">
           <div class="event__type-wrapper">
             <label class="event__type  event__type-btn" for="event-type-toggle-${countCard}">
@@ -158,14 +186,16 @@ const createEditFormTemplate = (card, countCard, attributes = {}) => {
 
           <div class="event__field-group  event__field-group--destination">
             <label class="event__label  event__type-output" for="event-destination-${countCard}">
-              ${isTypeAvailability} to
+              ${isTypeAvailability} ${replaceInTo ? `in` : `to`}
             </label>
             <select class="event__input  event__input--destination" id="event-destination-${countCard}"
-              type="text" name="event-destination"
+              type="text"
+              name="event-destination"
               value="${city}"
               list="destination-list-${countCard}">
             <datalist id="destination-list-${countCard}">
-              ${CITIES.map((it) =>`<option value=${it} ${it === city ? `selected` : ``}>${it}</option>`).join(`\n \n`)}
+              <option value=""></option>
+              ${citiesMarkup}
             </datalist>
             </select>
           </div>
@@ -174,12 +204,24 @@ const createEditFormTemplate = (card, countCard, attributes = {}) => {
             <label class="visually-hidden" for="event-start-time-${countCard}">
               From
             </label>
-            <input class="event__input  event__input--time" id="event-start-time-${countCard}" type="text" name="event-start-time" value="${moment(startDate).format(`DD/MM/YY hh:mm`)}">
+
+            <input
+              class="event__input  event__input--time event__input-start_time"
+              id="event-start-time-${countCard}"
+              type="text"
+              name="event-start-time"
+              value="${moment(startDate).format(`DD/MM/YY HH:mm`)}">
             &mdash;
             <label class="visually-hidden" for="event-end-time-${countCard}">
               To
             </label>
-            <input class="event__input  event__input--time" id="event-end-time-${countCard}" type="text" name="event-end-time" value="${moment(endDate).format(`DD/MM/YY hh:mm`)}">
+
+            <input
+              class="event__input  event__input--time"
+              id="event-end-time-${countCard}"
+              type="text"
+              name="event-end-time"
+              value="${moment(endDate).format(`DD/MM/YY HH:mm`)}">
           </div>
 
           <div class="event__field-group  event__field-group--price">
@@ -187,30 +229,39 @@ const createEditFormTemplate = (card, countCard, attributes = {}) => {
               <span class="visually-hidden">Price</span>
               &euro;
             </label>
-            <input class="event__input  event__input--price" id="event-price-${countCard}" type="number" name="event-price" value="${price}">
+            <input class="event__input  event__input--price"
+              id="event-price-${countCard}"
+              type="number"
+              min="0"
+              name="event-price"
+              value="${price}">
           </div>
 
-          <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-          <button class="event__reset-btn" type="reset">Delete</button>
+          <button class="event__save-btn  btn  btn--blue" type="submit">${saveButtonText}</button>
+          <button class="event__reset-btn" type="reset">
+            ${valueCountNewEvent ? `Cancel` : `${deleteButtonText}`}
+          </button>
 
           ${favoritesButton}
 
-          <button class="event__rollup-btn" type="button">
+          <button class="visually-hidden event__rollup-btn" type="button">
             <span class="visually-hidden">Open event</span>
           </button>
+
         </header>
 
         <section class="event__details">
 
           <section class="event__section  event__section--offers">
-            <h3 class="event__section-title  event__section-title--offers">Offers</h3>
+            <h3 class="event__section-title  event__section-title--offers ${showOffers ? `visually-hidden` : ``}">Offers</h3>
 
             <div class="event__available-offers">
               ${repeatingOffersMarkup}
             </div>
           </section>
 
-          <section class="event__section  event__section--destination">
+          <section
+          class="event__section  event__section--destination ${showPhotos ? `visually-hidden` : ``}">
             <h3 class="event__section-title  event__section-title--destination">Destination</h3>
             <p class="event__destination-description">${description}</p>
 
@@ -228,46 +279,13 @@ const createEditFormTemplate = (card, countCard, attributes = {}) => {
   );
 };
 
-const parseFormData = (formDate, form) => {
-  const picturesAll = [];
-  const offersAll = [];
-  const picturesElement = form.querySelectorAll(`.event__photo`);
-  const divOffers = form.querySelectorAll(`.event__offer-selector`);
-
-  picturesElement.forEach((picture) => {
-    picturesAll.push({
-      scr: picture.src,
-      // alt: picture.alt,
-    });
-  });
-
-  divOffers.forEach((offer, index) => {
-    offersAll.push({
-      title: offer.querySelector(`.event__offer-checkbox`).name,
-      price: Number(offer.querySelector(`.event__offer-price`).textContent),
-    });
-  });
-
-  const formUser = {
-    city: getCapitalizeFirstLetter(formDate.get(`event-destination`)),
-    randomWaypointItem:  getCapitalizeFirstLetter(formDate.get(`event-type`)),
-    offer: offersAll,
-    photosCount: picturesAll,
-    isFavorite: formDate.get(`event-favorite`) ? true : false,
-    price: Number(formDate.get(`event-price`)),
-    startDate: new Date(moment(formDate.get(`event-start-time`), `DD/MM/YY hh:mm`).valueOf()),
-    endDate: new Date(moment(formDate.get(`event-end-time`), `DD/MM/YY hh:mm`).valueOf()),
-    description: form.querySelector('.event__destination-description').textContent,
-  }
-
-  return formUser;
-}
-
 export default class EditForm extends AbstractSmartComponent {
-  constructor(cards, countCard) {
+  constructor(cards, countCard, distonation, offers) {
     super();
     this._cards = cards;
     this._countCard = countCard;
+    this._distonationApi = distonation;
+    this._offersApi = offers;
 
     this._city = cards.city;
     this._typeOfWaypoints = cards.typeOfWaypoints;
@@ -280,9 +298,12 @@ export default class EditForm extends AbstractSmartComponent {
     this._isFavorite = cards.isFavorite;
     this._randomWaypointItem = cards.randomWaypointItem;
 
+    this._externalData = DefaultData;
+
     this._submitHandler = null;
     this._favoriteClickHandler = null;
     this._deleteButtonClickHandler = null;
+    this._btnClickCloseHandler = null;
     this._flatpickr = null;
 
     this._subscribeOnEvents();
@@ -290,12 +311,16 @@ export default class EditForm extends AbstractSmartComponent {
   }
 
   getTemplate() {
-    return createEditFormTemplate(this._cards, this._countCard, {
+    return createEditFormTemplate(this._cards, this._countCard, this._distonationApi, {
       city: this._city,
       description: this._description,
       offer: this._offer,
       isFavorite: this._isFavorite,
       randomWaypointItem: this._randomWaypointItem,
+      photosCount: this._photosCount,
+      startDate: this._startDate,
+      endDate: this._endDate,
+      externalData: this._externalData,
     });
   }
 
@@ -307,6 +332,9 @@ export default class EditForm extends AbstractSmartComponent {
     this._city = cards.city;
     this._isFavorite = cards.isFavorite;
     this._randomWaypointItem = cards.randomWaypointItem;
+    this._startDate = cards.startDate;
+    this._endDate = cards.endDate;
+    // this._photosCount = cards.photosCount;
 
     this.rerender();
   }
@@ -314,26 +342,51 @@ export default class EditForm extends AbstractSmartComponent {
   rerender() {
     super.rerender();
     this._applyFlatpickr();
+    this._validationForm();
   }
 
   recoveryListeners() {
     this.setSubmitHandler(this._submitHandler);
     // this.setFavoritesInputClickHandler(this._favoriteClickHandler);
     this.setDeleteBtnClickHandler(this._deleteButtonClickHandler);
+    this.setBtnClickCloseHandler(this._btnClickCloseHandler);
     this._subscribeOnEvents();
   }
 
+  setData(data) {
+    this._externalData = Object.assign({}, DefaultData, data);
+    this.rerender();
+    this.disableForm(true);
+  }
+
+  disableForm(isActive) {
+    [].concat(this.getElement().querySelectorAll(`input`),
+        this.getElement().querySelectorAll(`select`), this.getElement().querySelectorAll(`label`), this.getElement().querySelectorAll(`button`))
+    .forEach((selectArray) => {
+      selectArray.forEach((element) => {
+        element.disabled = isActive;
+      });
+    });
+  }
+
+  setBtnClickCloseHandler(handler) {
+    if (this._countCard === -2) {
+      this.getElement().querySelector(`.event__rollup-btn`).style.position = `absolute`;
+    }
+
+    this.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, handler);
+
+    this._btnClickCloseHandler = handler;
+  }
+
   setSubmitHandler(handler) {
+    // this._validationForm();
     this.getElement().querySelector(`form`).addEventListener(`submit`, handler);
     this._submitHandler = handler;
   }
 
-  // setFavoritesInputClickHandler(handler) {
-  //   this.getElement().querySelector(`.event__favorite-icon`).addEventListener(`click`, handler);
-  //   this._favoriteClickHandler = handler;
-  // }
-
   setDeleteBtnClickHandler(handler) {
+
     this.getElement().querySelector(`.event__reset-btn`).addEventListener(`click`, handler);
 
     this._deleteButtonClickHandler = handler;
@@ -347,12 +400,56 @@ export default class EditForm extends AbstractSmartComponent {
     const form = this.getElement().querySelector(`.event--edit`);
     const formData = new FormData(form);
 
-    return parseFormData(formData, form);
-
-    // return parseFormData(this._city, this._typeOfWaypoints, this._description, this._startDate, this._endDate, this._offer, this._price, this._photosCount, this._isFavorite, this._randomWaypointItem);
+    return {
+      formData,
+      form,
+    };
   }
 
   _applyFlatpickr() {
+    if (this._flatpickr) {
+      this._flatpickr.destroy();
+      this._flatpickr = null;
+    }
+    const dateElementStart = this.getElement().querySelector(`#event-start-time-${this._countCard}`);
+
+    this._flatpickr = flatpickr(dateElementStart, {
+      enableTime: true,
+      dateFormat: `d/m/y H:i`,
+      defaultDate: this._startDate || `today`,
+      time_24hr: true, // eslint-disable-line camelcase
+      allowInput: true,
+    });
+
+    const dateElementEnd = this.getElement().querySelector(`#event-end-time-${this._countCard}`);
+
+    this._flatpickr = flatpickr(dateElementEnd, {
+      enableTime: true,
+      dateFormat: `d/m/y H:i`,
+      defaultDate: this._endDate || `today`,
+      time_24hr: true, // eslint-disable-line camelcase
+      allowInput: true,
+    });
+  }
+
+  _validationForm() {
+
+    if (Date.parse(this._startDate) >= Date.parse(this._endDate)) {
+      const inputEndTime = this.getElement().querySelector(`#event-end-time-${this._countCard}`);
+      const divTime = this.getElement().querySelector(`.event__field-group--time`);
+      divTime.style.border = `2px solid red`;
+      inputEndTime.setCustomValidity(`Время маршрута некорректно`);
+    }
+
+    if (this._city === ``) {
+      const selectCity = this.getElement().querySelector(`.event__input--destination`);
+      const selectCityDiv = this.getElement().querySelector(`.event__field-group--destination`);
+      selectCityDiv.style.border = `2px solid red`;
+      const selectCityValue = selectCity.value;
+      if (selectCityValue === ``) {
+        selectCity.setCustomValidity(`Выберите город`);
+      }
+    }
   }
 
   _subscribeOnEvents() {
@@ -360,24 +457,51 @@ export default class EditForm extends AbstractSmartComponent {
     const typeListElement = element.querySelector(`.event__type-list`);
     const inputDestinationElement = element.querySelector(`.event__input--destination`);
     const eventFavorite = element.querySelector(`.event__favorite-icon`);
-
+    const inputStartTime = element.querySelector(`#event-start-time-${this._countCard}`);
+    const inputEndTime = element.querySelector(`#event-end-time-${this._countCard}`);
 
     typeListElement.addEventListener(`click`, (evt) => {
       if (evt.target.tagName === `INPUT`) {
-        this._randomWaypointItem = getCapitalizeFirstLetter(evt.target.value);
-        this._offer = getOffers();
+        this._randomWaypointItem = evt.target.value;
+
+        this._offer = this._offersApi
+        .find((offerApi) => offerApi.type === this._randomWaypointItem)
+        .offers;
         this.rerender();
       }
     });
 
     inputDestinationElement.addEventListener(`change`, (evt) => {
       this._city = evt.target.value;
-      this._description = getRandomArrayItem(DESCRIPTION_ITEMS);
+
+      if (this._city) {
+        this._description = this._distonationApi
+        .find((city) => city.name === this._city)
+        .description;
+
+        this._photosCount = this._distonationApi
+        .find((city) => city.name === this._city)
+        .pictures;
+      } else {
+        this._description = ``;
+        this._photosCount = [];
+      }
+
       this.rerender();
     });
 
     eventFavorite.addEventListener(`click`, () => {
       this._isFavorite = !this._isFavorite;
+      this.rerender();
+    });
+
+    inputStartTime.addEventListener(`change`, () => {
+      this._startDate = new Date(moment(inputStartTime.value, `DD/MM/YY hh:mm`).valueOf());
+      this.rerender();
+    });
+
+    inputEndTime.addEventListener(`change`, () => {
+      this._endDate = new Date(moment(inputEndTime.value, `DD/MM/YY hh:mm`).valueOf());
       this.rerender();
     });
   }

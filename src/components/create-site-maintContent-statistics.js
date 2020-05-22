@@ -3,31 +3,55 @@ import AbstractSmartComponent from './abstract-smart-component.js';
 import Chart from "chart.js";
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import moment from "moment";
-import flatpickr from "flatpickr";
 
-const rendermoneyChart = (moneyCtx, cards) => {
+const StatisticsLegend = {
+  TIME: `TIME SPENT`,
+  TRANSPORT: `TRANSPORT`,
+  MONEY: `MONEY`,
+};
 
-  const BAR_HEIGHT = 55;
-  // moneyCtx.height = BAR_HEIGHT * 6;
-  const dist = [...new Set(cards.map((card) => card.randomWaypointItem))]
+const StatisticsSign = {
+  EURO: `€`,
+  COUNT: `x`,
+  HOURS: `H`,
+};
 
-  const moneyChart = new Chart(moneyCtx, {
+const getStatResult = (cards, qwer) => {
+  const caseResult = {
+    [StatisticsLegend.TIME]: ((distanation) => {
+      return cards.filter((card) => {
+        return card.randomWaypointItem.toLowerCase() === distanation.toLowerCase();
+      })
+      .reduce((sum, value) => sum + Math.round(moment.duration(value.endDate - value.startDate) / (60 * 60 * 1000)), 0);
+    }),
+    [StatisticsLegend.TRANSPORT]: ((distanation) => {
+      return cards.filter((card) => {
+        return card.randomWaypointItem.toLowerCase() === distanation.toLowerCase();
+      }).length;
+    }),
+    [StatisticsLegend.MONEY]: ((distanation) => {
+      return cards.filter((card) => {
+        return card.randomWaypointItem.toLowerCase() === distanation.toLowerCase();
+      })
+      .reduce((totalPrice, itemOf) => {
+        return totalPrice + itemOf.price;
+      }, 0);
+    }),
+  };
+  return caseResult[qwer];
+};
 
-    // plugins: [ChartDataLabels],
+const renderChart = (typeCtx, cards, legend, sign, positionSign = true) => {
+  const distanations = [...new Set(cards.map((card) => card.randomWaypointItem.toUpperCase()))];
+  return new Chart(typeCtx, {
+    plugins: [ChartDataLabels],
     type: `horizontalBar`,
     data: {
-      labels: dist,
+      labels: distanations,
       datasets: [{
-        data: dist.map((d) => {
-          return cards.filter((card) => {
-            return card.randomWaypointItem === d;
-          })
-          .reduce((totalPrice, itemOf) => {
-            return totalPrice + itemOf.price;
-          }, 0)
-        }),
-        backgroundColor: `#ffffff`,
-        hoverBackgroundColor: `#ffffff`,
+        data: distanations.map(getStatResult(cards, legend)),
+        backgroundColor: `rgba(0, 99, 132, 0.6)`,
+        hoverBackgroundColor: `#e7d0ea`,
         anchor: `start`
       }]
     },
@@ -35,17 +59,18 @@ const rendermoneyChart = (moneyCtx, cards) => {
       plugins: {
         datalabels: {
           font: {
-            size: 13
+            size: 15,
+            weight: `bold`,
           },
-          color: `#000000`,
-          anchor: 'end',
-          align: 'start',
-          formatter: (val) => `€ ${val}`
+          color: `#ffffff`,
+          anchor: `end`,
+          align: `start`,
+          formatter: (val) => positionSign ? `${val}${sign}` : `${sign} ${val}`
         }
       },
       title: {
         display: true,
-        text: `MONEY`,
+        text: legend,
         fontColor: `#000000`,
         fontSize: 23,
         position: `left`
@@ -55,7 +80,7 @@ const rendermoneyChart = (moneyCtx, cards) => {
           ticks: {
             fontColor: `#000000`,
             padding: 5,
-            fontSize: 13,
+            fontSize: 16,
           },
           gridLines: {
             display: false,
@@ -79,14 +104,12 @@ const rendermoneyChart = (moneyCtx, cards) => {
         display: false
       },
       tooltips: {
-        enabled: false,
+        enabled: true,
       }
     }
   });
+};
 
-}
-
-// class="visually-hidden"
 const createStatisticsSiteTemplate = () => {
   return (
     `<section class="statistics">
@@ -114,6 +137,8 @@ export default class StatisticsSite extends AbstractSmartComponent {
     this._cards = cardsModel;
 
     this._moneyChart = null;
+    this._transportChart = null;
+    this._timeChart = null;
 
     this._renderCharts();
   }
@@ -140,7 +165,11 @@ export default class StatisticsSite extends AbstractSmartComponent {
   _renderCharts() {
     const element = this.getElement();
     const moneyCtx = element.querySelector(`.statistics__chart--money`);
+    const transportCtx = element.querySelector(`.statistics__chart--transport`);
+    const timeCtx = element.querySelector(`.statistics__chart--time`);
 
-    this._moneyChart = rendermoneyChart(moneyCtx, this._cards.getCards());
+    this._moneyChart = renderChart(moneyCtx, this._cards.getCards(), StatisticsLegend.MONEY, StatisticsSign.EURO, false);
+    this._transportChart = renderChart(transportCtx, this._cards.getCards(), StatisticsLegend.TRANSPORT, StatisticsSign.COUNT);
+    this._timeChart = renderChart(timeCtx, this._cards.getCards(), StatisticsLegend.TIME, StatisticsSign.HOURS);
   }
 }

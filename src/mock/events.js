@@ -31,7 +31,7 @@ export const getOffers = () => {
 };
 
 const getArrayPhotos = () => {
-  const result = [{scr: `img/photos/1.jpg`}, {scr: `img/photos/2.jpg`}, {scr: `img/photos/3.jpg`}];
+  const result = [{scr: `img/photos/1.jpg`, alt: `1`}, {scr: `img/photos/2.jpg`, alt: `2`}, {scr: `img/photos/3.jpg`, alt: `3`}];
   return result;
 };
 

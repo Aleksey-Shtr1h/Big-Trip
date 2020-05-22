@@ -1,12 +1,16 @@
 import AbstractComponent from './abstract-component.js';
 
-const createNumberDayTemplate = (card, countDay) => {
+import moment from "moment";
 
+const createNumberDayTemplate = (day, countDay) => {
   return (
     `<li class="trip-days__item  day ${countDay + 1}">
       <div class="day__info">
         <span class="day__counter">${countDay + 1}</span>
-        <time class="day__date" datetime="2019-03-18">${card}</time>
+        <time
+          class="day__date"
+          datetime="2019-03-18">${moment(day).format(`MMMM DD`)}
+        </time>
       </div>
 
     </li>`
@@ -15,14 +19,14 @@ const createNumberDayTemplate = (card, countDay) => {
 
 
 export default class NumberDay extends AbstractComponent {
-  constructor(cards, index) {
+  constructor(day, index) {
     super();
-    this._cards = cards;
+    this._day = day;
     this._index = index;
   }
 
   getTemplate() {
-    return createNumberDayTemplate(this._cards, this._index);
+    return createNumberDayTemplate(this._day, this._index);
   }
 
 }

@@ -11,9 +11,13 @@ const createInfoTripTemplate = () => {
 };
 
 export default class InfoContainer extends AbstractComponent {
+  constructor(cardsModel) {
+    super();
+    this._cardsModel = cardsModel._cards;
+  }
 
   getTemplate() {
-    return createInfoTripTemplate();
+    return createInfoTripTemplate(this._cardsModel);
   }
 
 }
