@@ -1,7 +1,6 @@
 import FilterComponent from '../components/create-site-header-trip-filter.js';
 
 import {FilterType} from '../constants.js';
-// import {getTasksByFilter} from '../utils/common.js';
 import {renderTemplate, RenderPosition, raplaceElement} from '../utils/render.js';
 
 export default class FilterController {

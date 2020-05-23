@@ -83,16 +83,4 @@ export default class SortTrip extends AbstractComponent {
       handler(this._currentSortType);
     });
   }
-
-  // setSortClickBtn(handler) {
-  //   console.log('!!!!');
-  //   this._newEventBtn.addEventListener(`click`, () => {
-  //     const sortClickBtn = `event`;
-  //     handler(sortClickBtn);
-  //   });
-  //   this._newEventBtn.removeEventListener(`click`, () => {
-  //     const sortClickBtn = `event`;
-  //     handler(sortClickBtn);
-  //   });
-  // }
 }

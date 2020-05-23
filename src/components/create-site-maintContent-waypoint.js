@@ -1,16 +1,12 @@
-import {getDuration} from '../utils/common.js';
+import moment from "moment";
 import AbstractComponent from './abstract-component.js';
 
-import moment from "moment";
+import {getDuration} from '../utils/common.js';
+
+import {TYPE_OF_WAYPOINTS} from '../constants.js';
 
 const START_OFFERS = 0;
 const COUNT_OFFERS = 3;
-
-const TYPE_OF_WAYPOINTS = {
-  transfers: [`Taxi`, `Bus`, `Train`, `Ship`, `Drive`, `Flight`],
-  activitys: [`Check-in`, `Sightseeing`, `Restaurant`],
-  wayPointsAll: [`Taxi`, `Bus`, `Train`, `Ship`, `Drive`, `Flight`, `Check-in`, `Sightseeing`, `Restaurant`],
-};
 
 const createRepeatingOffersMarkup = (options) => {
   return options.slice(START_OFFERS, COUNT_OFFERS).map((option) => {

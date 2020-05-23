@@ -1,7 +1,13 @@
+import moment from "moment";
+
 import PointModel from "../model/event-point-model.js";
 import DistonationModel from "../model/event-distonation-model.js";
 import OfferModel from "../model/event-offer-model.js";
-import moment from "moment";
+
+import MainEditFormComponent from '../components/create-site-maintContent-edit-form.js';
+import MainWaypointItemComponent from '../components/create-site-maintContent-waypoint.js';
+
+import {renderTemplate, RenderPosition, raplaceElement, remove} from '../utils/render.js';
 import {getCapitalizeFirstLetter} from '../utils/common.js';
 
 const SHAKE_ANIMATION_TIMEOUT = 600;
@@ -68,16 +74,11 @@ const parseFormData = (formDate, form, idCard) => {
 
     'id': String(idCard + 1),
 
-    'is_favorite': formDate.get(`event-favorite`) ? true : false,
+    'is_favorite': form.querySelector(`.event__favorite-checkbox`).checked ? true : false,
     'offers': offersAll,
     'type': formDate.get(`event-type`),
   });
 };
-
-import MainEditFormComponent from '../components/create-site-maintContent-edit-form.js';
-import MainWaypointItemComponent from '../components/create-site-maintContent-waypoint.js';
-import {renderTemplate, RenderPosition, raplaceElement, remove} from '../utils/render.js';
-
 
 export default class TripCardController {
   constructor(container, onDataChange, onViewChange) {
@@ -180,12 +181,6 @@ export default class TripCardController {
     document.removeEventListener(`keydown`, this._onEscKeyDown);
   }
 
-  _replaceEmptyCard() {
-    EmptyCard.id = String(this._idCard + 1);
-    EmptyCard.offer = this._offers.find((offerApi) => offerApi.type === `flight`).offers;
-    EmptyCard.randomWaypointItem = this._offers.find((offerApi) => offerApi.type === `flight`).type;
-  }
-
   shake() {
     this._editFormComponent.getElement().style.animation = `shake ${SHAKE_ANIMATION_TIMEOUT / 1000}s`;
     this._waypointItemComponent.getElement().style.animation = `shake ${SHAKE_ANIMATION_TIMEOUT / 1000}s`;
@@ -200,6 +195,12 @@ export default class TripCardController {
       });
       this._editFormComponent.disableForm(false);
     }, SHAKE_ANIMATION_TIMEOUT);
+  }
+
+  _replaceEmptyCard() {
+    EmptyCard.id = String(this._idCard + 1);
+    EmptyCard.offer = this._offers.find((offerApi) => offerApi.type === `flight`).offers;
+    EmptyCard.randomWaypointItem = this._offers.find((offerApi) => offerApi.type === `flight`).type;
   }
 
   _replaceCardToFormCard() {

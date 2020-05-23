@@ -1,18 +1,13 @@
+import moment from "moment";
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 import 'flatpickr/dist/themes/light.css';
 
-import {getCapitalizeFirstLetter} from '../utils/common.js';
 import AbstractSmartComponent from './abstract-smart-component.js';
+import {getCapitalizeFirstLetter} from '../utils/common.js';
+import {TYPE_OF_WAYPOINTS} from '../constants.js';
 import "flatpickr/dist/flatpickr.min.css";
 
-import moment from "moment";
-
-const TYPE_OF_WAYPOINTS = {
-  transfers: [`Taxi`, `Bus`, `Train`, `Ship`, `Drive`, `Flight`],
-  activitys: [`Check-in`, `Sightseeing`, `Restaurant`],
-  wayPointsAll: [`Taxi`, `Bus`, `Train`, `Ship`, `Drive`, `Flight`, `Check-in`, `Sightseeing`, `Restaurant`],
-};
 
 const DefaultData = {
   deleteButtonText: `Delete`,
@@ -206,12 +201,13 @@ const createEditFormTemplate = (card, countCard, distonations, attributes = {}) 
             </label>
 
             <input
-              class="event__input  event__input--time event__input-start_time"
+              class="event__input  event__input--time"
               id="event-start-time-${countCard}"
               type="text"
               name="event-start-time"
               value="${moment(startDate).format(`DD/MM/YY HH:mm`)}">
             &mdash;
+
             <label class="visually-hidden" for="event-end-time-${countCard}">
               To
             </label>
@@ -304,7 +300,8 @@ export default class EditForm extends AbstractSmartComponent {
     this._favoriteClickHandler = null;
     this._deleteButtonClickHandler = null;
     this._btnClickCloseHandler = null;
-    this._flatpickr = null;
+    this._flatpickrStartDate = null;
+    this._flatpickrEndDate = null;
 
     this._subscribeOnEvents();
     this._applyFlatpickr();
@@ -393,6 +390,14 @@ export default class EditForm extends AbstractSmartComponent {
   }
 
   removeElement() {
+
+    if (this._flatpickrStartDate || this._flatpickrEndDate) {
+      this._flatpickrStartDate.destroy();
+      this._flatpickrEndDate.destroy();
+      this._flatpickrStartDate = null;
+      this._flatpickrEndDate = null;
+    }
+
     super.removeElement();
   }
 
@@ -407,13 +412,16 @@ export default class EditForm extends AbstractSmartComponent {
   }
 
   _applyFlatpickr() {
-    if (this._flatpickr) {
-      this._flatpickr.destroy();
-      this._flatpickr = null;
+    if (this._flatpickrStartDate || this._flatpickrEndDate) {
+      this._flatpickrStartDate.destroy();
+      this._flatpickrEndDate.destroy();
+      this._flatpickrStartDate = null;
+      this._flatpickrEndDate = null;
     }
-    const dateElementStart = this.getElement().querySelector(`#event-start-time-${this._countCard}`);
 
-    this._flatpickr = flatpickr(dateElementStart, {
+    // const dateElementStart = this.getElement().querySelector(`#event-start-time-${this._countCard}`);
+
+    this._flatpickrStartDate = flatpickr(this.getElement().querySelector(`#event-start-time-${this._countCard}`), {
       enableTime: true,
       dateFormat: `d/m/y H:i`,
       defaultDate: this._startDate || `today`,
@@ -421,9 +429,9 @@ export default class EditForm extends AbstractSmartComponent {
       allowInput: true,
     });
 
-    const dateElementEnd = this.getElement().querySelector(`#event-end-time-${this._countCard}`);
+    // const dateElementEnd = this.getElement().querySelector(`#event-end-time-${this._countCard}`);
 
-    this._flatpickr = flatpickr(dateElementEnd, {
+    this._flatpickrEndDate = flatpickr(this.getElement().querySelector(`#event-end-time-${this._countCard}`), {
       enableTime: true,
       dateFormat: `d/m/y H:i`,
       defaultDate: this._endDate || `today`,
