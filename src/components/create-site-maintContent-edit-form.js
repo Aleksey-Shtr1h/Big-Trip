@@ -5,7 +5,7 @@ import 'flatpickr/dist/themes/light.css';
 
 import AbstractSmartComponent from './abstract-smart-component.js';
 import {getCapitalizeFirstLetter} from '../utils/common.js';
-import {TYPE_OF_WAYPOINTS} from '../constants.js';
+import {TypeOfWaypoint} from '../constants.js';
 import "flatpickr/dist/flatpickr.min.css";
 
 
@@ -14,24 +14,24 @@ const DefaultData = {
   saveButtonText: `Save`,
 };
 
-const createFavoriteBtnMarkup = (name, isActive = true, countCard, showElement) => {
+const createFavoriteBtnMarkup = (isActive = true, countCard, showElement) => {
   return (
     `<input
       disabled
-      id="event-${name}-${countCard}"
-      class="event__${name}-checkbox  visually-hidden"
+      id="event-favorite-${countCard}"
+      class="event__favorite-checkbox  visually-hidden"
       type="checkbox"
-      name="event-${name}"
+      name="event-favorite"
       ${isActive ? `checked` : ``}>
 
     <label
-      class="event__${name}-btn ${showElement ? `visually-hidden` : ``}"
-      for="event-${name}-${countCard}">
+      class="event__favorite-btn ${showElement ? `visually-hidden` : ``}"
+      for="event-favorite-${countCard}">
       <span class="visually-hidden">
-        Add to ${name}
+        Add to favorite
       </span>
 
-      <svg class="event__${name}-icon" width="28" height="28" viewBox="0 0 28 28">
+      <svg class="event__favorite-icon" width="28" height="28" viewBox="0 0 28 28">
         <path d="M14 21l-8.22899 4.3262 1.57159-9.1631L.685209 9.67376 9.8855 8.33688 14 0l4.1145 8.33688 9.2003 1.33688-6.6574 6.48934 1.5716 9.1631L14 21z"/>
       </svg>
     </label>`
@@ -118,8 +118,8 @@ const getCities = (distonations) => {
   return distonations.map((distonation) => distonation.name);
 };
 
-const getCitiesMarkup = (citiesArray, city) => {
-  return citiesArray.map((cityCard) => {
+const getCitiesMarkup = (cities, city) => {
+  return cities.map((cityCard) => {
     return (`<option value="${cityCard}" ${cityCard === city ? `selected` : ``}>${cityCard}</option>`
     );
   }).join(`\n \n`);
@@ -137,18 +137,18 @@ const createEditFormTemplate = (card, countCard, distonations, attributes = {}) 
   const cities = getCities(distonations);
   const citiesMarkup = getCitiesMarkup(cities, city);
 
-  const favoritesButton = createFavoriteBtnMarkup(`favorite`, isFavorite, countCard, valueCountNewEvent);
+  const favoritesButton = createFavoriteBtnMarkup(isFavorite, countCard, valueCountNewEvent);
 
   const repeatingOffersMarkup = createRepeatingOffersMarkup(offer, countCard);
 
   const typeUpper = getCapitalizeFirstLetter(randomWaypointItem);
   const isTypeAvailability = typeUpper ? typeUpper : randomWaypointItem;
 
-  const replaceInTo = TYPE_OF_WAYPOINTS.activitys.includes(isTypeAvailability);
+  const replaceInTo = TypeOfWaypoint.ACTIVITYS.includes(isTypeAvailability);
 
-  const repeatingTransfersMarkup = createRepeatingTransferMarkup(TYPE_OF_WAYPOINTS.transfers, isTypeAvailability);
+  const repeatingTransfersMarkup = createRepeatingTransferMarkup(TypeOfWaypoint.TRANSFERS, isTypeAvailability);
 
-  const repeatingActivityMarkup = createRepeatingActivityMarkup(TYPE_OF_WAYPOINTS.activitys, isTypeAvailability, countCard);
+  const repeatingActivityMarkup = createRepeatingActivityMarkup(TypeOfWaypoint.ACTIVITYS, isTypeAvailability, countCard);
   const repeatingPhotoMarkup = createRepeatingPhotoMarkup(photosCount);
 
   const deleteButtonText = externalData.deleteButtonText;
@@ -331,7 +331,6 @@ export default class EditForm extends AbstractSmartComponent {
     this._randomWaypointItem = cards.randomWaypointItem;
     this._startDate = cards.startDate;
     this._endDate = cards.endDate;
-    // this._photosCount = cards.photosCount;
 
     this.rerender();
   }
@@ -344,7 +343,7 @@ export default class EditForm extends AbstractSmartComponent {
 
   recoveryListeners() {
     this.setSubmitHandler(this._submitHandler);
-    // this.setFavoritesInputClickHandler(this._favoriteClickHandler);
+    this.setFavoritesInputClickHandler(this._favoriteClickHandler);
     this.setDeleteBtnClickHandler(this._deleteButtonClickHandler);
     this.setBtnClickCloseHandler(this._btnClickCloseHandler);
     this._subscribeOnEvents();
@@ -359,8 +358,8 @@ export default class EditForm extends AbstractSmartComponent {
   disableForm(isActive) {
     [].concat(this.getElement().querySelectorAll(`input`),
         this.getElement().querySelectorAll(`select`), this.getElement().querySelectorAll(`label`), this.getElement().querySelectorAll(`button`))
-    .forEach((selectArray) => {
-      selectArray.forEach((element) => {
+    .forEach((selectElements) => {
+      selectElements.forEach((element) => {
         element.disabled = isActive;
       });
     });
@@ -377,16 +376,21 @@ export default class EditForm extends AbstractSmartComponent {
   }
 
   setSubmitHandler(handler) {
-    // this._validationForm();
     this.getElement().querySelector(`form`).addEventListener(`submit`, handler);
     this._submitHandler = handler;
   }
 
   setDeleteBtnClickHandler(handler) {
-
     this.getElement().querySelector(`.event__reset-btn`).addEventListener(`click`, handler);
 
     this._deleteButtonClickHandler = handler;
+  }
+
+  setFavoritesInputClickHandler(handler) {
+    this.getElement().querySelector(`.event__favorite-icon`)
+      .addEventListener(`click`, handler);
+
+    this._favoriteClickHandler = handler;
   }
 
   removeElement() {
@@ -419,9 +423,9 @@ export default class EditForm extends AbstractSmartComponent {
       this._flatpickrEndDate = null;
     }
 
-    // const dateElementStart = this.getElement().querySelector(`#event-start-time-${this._countCard}`);
+    const dateElementStart = this.getElement().querySelector(`#event-start-time-${this._countCard}`);
 
-    this._flatpickrStartDate = flatpickr(this.getElement().querySelector(`#event-start-time-${this._countCard}`), {
+    this._flatpickrStartDate = flatpickr(dateElementStart, {
       enableTime: true,
       dateFormat: `d/m/y H:i`,
       defaultDate: this._startDate || `today`,
@@ -429,9 +433,9 @@ export default class EditForm extends AbstractSmartComponent {
       allowInput: true,
     });
 
-    // const dateElementEnd = this.getElement().querySelector(`#event-end-time-${this._countCard}`);
+    const dateElementEnd = this.getElement().querySelector(`#event-end-time-${this._countCard}`);
 
-    this._flatpickrEndDate = flatpickr(this.getElement().querySelector(`#event-end-time-${this._countCard}`), {
+    this._flatpickrEndDate = flatpickr(dateElementEnd, {
       enableTime: true,
       dateFormat: `d/m/y H:i`,
       defaultDate: this._endDate || `today`,
@@ -464,7 +468,6 @@ export default class EditForm extends AbstractSmartComponent {
     const element = this.getElement();
     const typeListElement = element.querySelector(`.event__type-list`);
     const inputDestinationElement = element.querySelector(`.event__input--destination`);
-    const eventFavorite = element.querySelector(`.event__favorite-icon`);
     const inputStartTime = element.querySelector(`#event-start-time-${this._countCard}`);
     const inputEndTime = element.querySelector(`#event-end-time-${this._countCard}`);
 
@@ -495,11 +498,6 @@ export default class EditForm extends AbstractSmartComponent {
         this._photosCount = [];
       }
 
-      this.rerender();
-    });
-
-    eventFavorite.addEventListener(`click`, () => {
-      this._isFavorite = !this._isFavorite;
       this.rerender();
     });
 

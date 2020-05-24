@@ -1,14 +1,18 @@
 import AbstractComponent from './abstract-component.js';
 import moment from "moment";
 
-const getEventInfoCity = (coutsCity) => {
-  const firstCity = coutsCity.slice(0, 1);
-  const endCity = coutsCity.slice(-1);
+const FIRST_ELEMNT = 1;
+const END_ELEMNT = -1;
+const MIN_COUNT_CITY = 3;
 
-  if (coutsCity.length <= 3) {
-    return coutsCity.map((elem) => elem).join(` \u2014 `);
+const getEventInfoCity = (coutsCity) => {
+  const firstCity = coutsCity.slice(0, FIRST_ELEMNT);
+  const endCity = coutsCity.slice(END_ELEMNT);
+
+  if (coutsCity.length <= MIN_COUNT_CITY) {
+    return coutsCity.map((elem) => elem).join(`\n\u2014 `);
   } else {
-    return `${firstCity} ... \u2014 ... ${endCity}`;
+    return `${firstCity}\n...\n\u2014\n...\n${endCity}`;
   }
 };
 
@@ -17,9 +21,9 @@ const getEventInfoDay = (daysStart, daysEnd) => {
   const end = new Date(daysEnd[0]).getMonth();
 
   if (start === end) {
-    return `${moment(daysStart[0]).format(`MMMM DD`)} \u2014 ${moment(daysEnd[0]).format(`DD`)}`;
+    return `${moment(daysStart[0]).format(`MMMM DD`)}\n\u2014\n${moment(daysEnd[0]).format(`DD`)}`;
   } else {
-    return `${moment(daysStart[0]).format(`MMMM DD`)} \u2014 ${moment(daysEnd[0]).format(`MMMM DD`)}`;
+    return `${moment(daysStart[0]).format(`MMMM DD`)}\n\u2014\n${moment(daysEnd[0]).format(`MMMM DD`)}`;
   }
 };
 
@@ -28,11 +32,11 @@ const createInfoTripTemplate = (cards) => {
 
   const daysStart = [...new Set(cards
       .sort((prev, next) => prev.startDate - next.startDate)
-      .map((card) => card.startDate))].slice(0, 1);
+      .map((card) => card.startDate))].slice(0, FIRST_ELEMNT);
 
   const daysEnd = [...new Set(cards
       .sort((prev, next) => prev.startDate - next.startDate)
-      .map((card) => card.endDate))].slice(-1);
+      .map((card) => card.endDate))].slice(END_ELEMNT);
 
   const eventInfoCity = getEventInfoCity(coutsCity);
   const eventInfoDay = getEventInfoDay(daysStart, daysEnd);

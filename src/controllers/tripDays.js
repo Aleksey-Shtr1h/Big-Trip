@@ -4,6 +4,7 @@ import TripCardController, {Modes as CardControllerModes, EmptyCard} from './tri
 import MainSortTripComponent, {SortType} from '../components/create-site-maintContent-filter-sort.js';
 import MainNumberDayComponent from '../components/create-site-maintContent-day.js';
 import MainListWaypointComponent from '../components/create-site-maintContent-listWaypoint.js';
+import MainNoPointsComponent from '../components/create-site-maintContent-no-points.js';
 
 import {renderTemplate, RenderPosition, remove, raplaceElement} from '../utils/render.js';
 
@@ -37,10 +38,12 @@ export default class TripDaysController {
     this._cardsModel = cardsModel;
     this._api = api;
 
+    this._noPointsComponent = new MainNoPointsComponent();
+
     this._newEventBtn = document.querySelector(`.trip-main__event-add-btn`);
 
     this._daysTrip = [];
-    this._showedDay = [];
+    this._showedDays = [];
     this._showedCardControllers = [];
     this._priceChangeHandlers = [];
 
@@ -52,6 +55,8 @@ export default class TripDaysController {
     this._creatingCard = null;
     this._sortType = null;
     this._priceEvent = null;
+
+    this._oldNoPointsComponent = false;
 
     this._onDataChange = this._onDataChange.bind(this);
     this._onViewChange = this._onViewChange.bind(this);
@@ -65,9 +70,7 @@ export default class TripDaysController {
   renderDays() {
     const cardsTrip = this._cardsModel.getCards();
 
-    this._daysTrip = [...new Set(cardsTrip
-      .sort((prev, next) => prev.startDate - next.startDate)
-      .map((card) => card.startDate.toDateString()))];
+    this._updateDays();
 
     const mainTripDaysListElement = this._container.getElement();
 
@@ -107,6 +110,17 @@ export default class TripDaysController {
   }
 
   _renderTripDays(container, tripCards) {
+    if (tripCards.length === 0) {
+      this._oldNoPointsComponent = true;
+      renderTemplate(mainTripEventsElement, this._noPointsComponent, RenderPosition.BEFOREEND);
+      return;
+    }
+
+    if (this._oldNoPointsComponent) {
+      remove(this._noPointsComponent);
+      this._oldNoPointsComponent = false;
+    }
+
     this._getFilterSort();
     this._daysTrip.forEach((day, index) => {
 
@@ -114,7 +128,7 @@ export default class TripDaysController {
 
       this._listWaypointComponent = new MainListWaypointComponent();
 
-      this._showedDay.push(this._numberDayComponent);
+      this._showedDays.push(this._numberDayComponent);
 
       tripCards.map((card, count) => {
         if (card.startDate.toDateString() === day) {
@@ -176,8 +190,8 @@ export default class TripDaysController {
   }
 
   _removeDay() {
-    this._showedDay.forEach((dayComponent) => remove(dayComponent));
-    this._showedDay = [];
+    this._showedDays.forEach((dayComponent) => remove(dayComponent));
+    this._showedDays = [];
   }
 
   _onDataChange(cardController, oldData, newData) {
@@ -187,7 +201,6 @@ export default class TripDaysController {
         cardController.destroy();
         this._creatingCard = null;
         this._newEventBtn.disabled = false;
-        // this._updateCards();
       } else {
         this._api.createCard(newData)
         .then((cardModel) => {
@@ -211,7 +224,6 @@ export default class TripDaysController {
       .then(() => {
         this._cardsModel.removeCards(oldData.id);
         this._updateCards();
-        // this._callHandlers(this._priceChangeHandlers);
       })
       .catch(() => {
         cardController.shake();

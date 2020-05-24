@@ -40,7 +40,7 @@ const parseFormData = (formDate, form, idCard) => {
   const picturesAll = [];
   const offersAll = [];
   const picturesElement = form.querySelectorAll(`.event__photo`);
-  const divOffers = form.querySelectorAll(`.event__offer-checkbox:checked + label[for^="event"]`);
+  const offersElement = form.querySelectorAll(`.event__offer-checkbox:checked + label[for^="event"]`);
 
   picturesElement.forEach((picture) => {
     picturesAll.push({
@@ -49,7 +49,7 @@ const parseFormData = (formDate, form, idCard) => {
     });
   });
 
-  divOffers.forEach((offer) => {
+  offersElement.forEach((offer) => {
     offersAll.push({
       title: offer.querySelector(`.event__offer-title`).textContent,
       price: Number(offer.querySelector(`.event__offer-price`).textContent),
@@ -131,9 +131,12 @@ export default class TripCardController {
       this._onDataChange(this, card, data);
     });
 
-    // this._editFormComponent.setFavoritesInputClickHandler(() => {
-    //   this._onDataChange(this, card, Object.assign({}, card, {isFavorite: !card.isFavorite}));
-    // });
+    this._editFormComponent.setFavoritesInputClickHandler(() => {
+      const newCard = PointModel.clone(card);
+      newCard.isFavorite = !newCard.isFavorite;
+
+      this._onDataChange(this, card, newCard);
+    });
 
     this._editFormComponent.setDeleteBtnClickHandler(() => {
       this._editFormComponent.setData({

@@ -3,7 +3,7 @@ import AbstractComponent from './abstract-component.js';
 
 import {getDuration} from '../utils/common.js';
 
-import {TYPE_OF_WAYPOINTS} from '../constants.js';
+import {TypeOfWaypoint} from '../constants.js';
 
 const START_OFFERS = 0;
 const COUNT_OFFERS = 3;
@@ -24,7 +24,7 @@ const createRepeatingOffersMarkup = (options) => {
 const createWaypointItemTemplate = (card) => {
   const {city, startDate, endDate, offer, price, randomWaypointItem} = card;
 
-  const replaceInTo = TYPE_OF_WAYPOINTS.activitys.includes(randomWaypointItem);
+  const replaceInTo = TypeOfWaypoint.ACTIVITYS.includes(randomWaypointItem);
 
   const repeatingOffersMarkup = createRepeatingOffersMarkup(offer);
   const eventDuration = getDuration(startDate, endDate);
