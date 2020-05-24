@@ -8,7 +8,6 @@ import {getCapitalizeFirstLetter} from '../utils/common.js';
 import {TypeOfWaypoint} from '../constants.js';
 import "flatpickr/dist/flatpickr.min.css";
 
-
 const DefaultData = {
   deleteButtonText: `Delete`,
   saveButtonText: `Save`,
