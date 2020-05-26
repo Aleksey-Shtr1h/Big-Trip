@@ -58,16 +58,6 @@ export default class API {
     return this._load({url: `points/${id}`, method: Method.DELETE});
   }
 
-  _load({url, method = Method.GET, body = null, headers = new Headers()}) {
-    headers.append(`Authorization`, this._authorization);
-
-    return fetch(`${this._endPoint}/${url}`, {method, body, headers})
-      .then(checkStatus)
-      .catch((err) => {
-        throw err;
-      });
-  }
-
   getData() {
     const requests = Urls.map((nameUrl) => this._load({url: nameUrl}));
     return Promise.all(requests)
@@ -78,6 +68,16 @@ export default class API {
         Distonation.setDistonation(destinations);
         Offer.setOffers(offers);
         return Card.parseCards(points);
+      });
+  }
+
+  _load({url, method = Method.GET, body = null, headers = new Headers()}) {
+    headers.append(`Authorization`, this._authorization);
+
+    return fetch(`${this._endPoint}/${url}`, {method, body, headers})
+      .then(checkStatus)
+      .catch((err) => {
+        throw err;
       });
   }
 }

@@ -1,5 +1,5 @@
 import {FilterType} from '../constants.js';
-import {getCardsByFilter} from '../utils/filterUtils.js';
+import {getCardsByFilter} from '../utils/filter-utils.js';
 
 export default class CardsModel {
   constructor() {

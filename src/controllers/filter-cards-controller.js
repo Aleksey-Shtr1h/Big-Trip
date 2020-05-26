@@ -3,7 +3,7 @@ import FilterComponent from '../components/create-site-header-trip-filter.js';
 import {FilterType} from '../constants.js';
 import {renderTemplate, RenderPosition, raplaceElement} from '../utils/render.js';
 
-export default class FilterController {
+export default class FilterCardsController {
   constructor(container, cardsModel) {
     this._container = container;
     this._cardsModel = cardsModel;

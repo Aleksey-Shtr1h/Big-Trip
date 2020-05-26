@@ -5,15 +5,15 @@ const FIRST_ELEMNT = 1;
 const END_ELEMNT = -1;
 const MIN_COUNT_CITY = 3;
 
-const getEventInfoCity = (coutsCity) => {
-  const firstCity = coutsCity.slice(0, FIRST_ELEMNT);
-  const endCity = coutsCity.slice(END_ELEMNT);
+const getEventInfoCity = (countCities) => {
+  const firstCity = countCities.slice(0, FIRST_ELEMNT);
+  const endCity = countCities.slice(END_ELEMNT);
 
-  if (coutsCity.length <= MIN_COUNT_CITY) {
-    return coutsCity.map((elem) => elem).join(`\n\u2014 `);
-  } else {
-    return `${firstCity}\n...\n\u2014\n...\n${endCity}`;
+  if (countCities.length <= MIN_COUNT_CITY) {
+    return countCities.map((countCity) => countCity).join(`\n\u2014 `);
   }
+
+  return `${firstCity}\n...\n\u2014\n...\n${endCity}`;
 };
 
 const getEventInfoDay = (daysStart, daysEnd) => {
@@ -22,23 +22,23 @@ const getEventInfoDay = (daysStart, daysEnd) => {
 
   if (start === end) {
     return `${moment(daysStart[0]).format(`MMMM DD`)}\n\u2014\n${moment(daysEnd[0]).format(`DD`)}`;
-  } else {
-    return `${moment(daysStart[0]).format(`MMMM DD`)}\n\u2014\n${moment(daysEnd[0]).format(`MMMM DD`)}`;
   }
+
+  return `${moment(daysStart[0]).format(`MMMM DD`)}\n\u2014\n${moment(daysEnd[0]).format(`MMMM DD`)}`;
 };
 
 const createInfoTripTemplate = (cards) => {
-  const coutsCity = [...new Set(cards.map((elem) => elem.city))];
+  const countCities = [...new Set(cards.map((countCity) => countCity.city))];
 
   const daysStart = [...new Set(cards
-      .sort((prev, next) => prev.startDate - next.startDate)
+      .sort((prevDay, nextDay) => prevDay.startDate - nextDay.startDate)
       .map((card) => card.startDate))].slice(0, FIRST_ELEMNT);
 
   const daysEnd = [...new Set(cards
-      .sort((prev, next) => prev.startDate - next.startDate)
+      .sort((prevDay, nextDay) => prevDay.startDate - nextDay.startDate)
       .map((card) => card.endDate))].slice(END_ELEMNT);
 
-  const eventInfoCity = getEventInfoCity(coutsCity);
+  const eventInfoCity = getEventInfoCity(countCities);
   const eventInfoDay = getEventInfoDay(daysStart, daysEnd);
   return (
     `<div class="trip-info__main">

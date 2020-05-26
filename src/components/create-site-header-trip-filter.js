@@ -28,8 +28,8 @@ const createFilterMarkup = (filter, isChecked) => {
 };
 
 const createFilterTripTemplate = (filters) => {
-  const filterMarkup = filters.map((it) => {
-    return createFilterMarkup(it, it.checked);
+  const filterMarkup = filters.map((filter) => {
+    return createFilterMarkup(filter, filter.checked);
   }).join(`\n \n`);
 
   return (

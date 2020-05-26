@@ -5,7 +5,7 @@ import 'flatpickr/dist/themes/light.css';
 
 import AbstractSmartComponent from './abstract-smart-component.js';
 import {getCapitalizeFirstLetter} from '../utils/common.js';
-import {TypeOfWaypoint} from '../constants.js';
+import {TypeOfWayPoint} from '../constants.js';
 import "flatpickr/dist/flatpickr.min.css";
 
 const DefaultData = {
@@ -16,7 +16,6 @@ const DefaultData = {
 const createFavoriteBtnMarkup = (isActive = true, countCard, showElement) => {
   return (
     `<input
-      disabled
       id="event-favorite-${countCard}"
       class="event__favorite-checkbox  visually-hidden"
       type="checkbox"
@@ -37,10 +36,11 @@ const createFavoriteBtnMarkup = (isActive = true, countCard, showElement) => {
   );
 };
 
-const createRepeatingOffersMarkup = (options, countCard) => {
+const createRepeatingOffersMarkup = (options) => {
+
   return options.map((option, index) => {
-    const {title, price} = option;
-    const isChecked = countCard !== -2 ? true : false;
+    const {title, price, check} = option;
+
     return (
       `<div class="event__offer-selector">
         <input
@@ -48,7 +48,7 @@ const createRepeatingOffersMarkup = (options, countCard) => {
           id="event-offer-${title}-${index}"
           type="checkbox"
           name="${title}"
-          ${isChecked ? `checked` : ``}>
+          ${check ? `checked` : ``}>
         <label
           class="event__offer-label"
           for="event-offer-${title}-${index}">
@@ -61,9 +61,9 @@ const createRepeatingOffersMarkup = (options, countCard) => {
   }).join(`\n \n`);
 };
 
-const createRepeatingTransferMarkup = (typeOfWaypoints, randomItem) => {
+const createRepeatingTransferMarkup = (typeOfWayPoints, randomItem) => {
 
-  const result = typeOfWaypoints.map((wayPoint) => {
+  const result = typeOfWayPoints.map((wayPoint) => {
     const isChecked = (randomItem === wayPoint) ? true : false;
     const lowerCaseItem = wayPoint.toLowerCase();
     return (
@@ -82,9 +82,9 @@ const createRepeatingTransferMarkup = (typeOfWaypoints, randomItem) => {
   return result;
 };
 
-const createRepeatingActivityMarkup = (typeOfWaypoints, randomItem, countCard) => {
+const createRepeatingActivityMarkup = (typeOfWayPoints, randomItem, countCard) => {
 
-  const result = typeOfWaypoints.map((wayPoint) => {
+  const result = typeOfWayPoints.map((wayPoint) => {
     const isChecked = (randomItem === wayPoint) ? true : false;
     const lowerCaseItem = wayPoint.toLowerCase();
     return (
@@ -125,29 +125,29 @@ const getCitiesMarkup = (cities, city) => {
 };
 
 
-const createEditFormTemplate = (card, countCard, distonations, attributes = {}) => {
-  const {price} = card;
-  const {city, description, offer, isFavorite, randomWaypointItem, photosCount, startDate, endDate, externalData} = attributes;
+const createEditFormTemplate = (card, attributes = {}) => {
+  const {city, description, offer, isFavorite, randomWayPointItem, photosCount, startDate, endDate, externalData, dataoOffers, countCard, distonations, price} = attributes;
 
   const showOffers = (offer.length === 0) ? true : false;
   const showPhotos = (photosCount.length === 0) ? true : false;
   const valueCountNewEvent = (countCard === -2) ? true : false;
+  const offersData = (countCard === -2) ? offer : dataoOffers;
 
   const cities = getCities(distonations);
   const citiesMarkup = getCitiesMarkup(cities, city);
 
   const favoritesButton = createFavoriteBtnMarkup(isFavorite, countCard, valueCountNewEvent);
 
-  const repeatingOffersMarkup = createRepeatingOffersMarkup(offer, countCard);
+  const repeatingOffersMarkup = createRepeatingOffersMarkup(offersData, countCard);
 
-  const typeUpper = getCapitalizeFirstLetter(randomWaypointItem);
-  const isTypeAvailability = typeUpper ? typeUpper : randomWaypointItem;
+  const typeUpper = getCapitalizeFirstLetter(randomWayPointItem);
+  const isTypeAvailability = typeUpper ? typeUpper : randomWayPointItem;
 
-  const replaceInTo = TypeOfWaypoint.ACTIVITYS.includes(isTypeAvailability);
+  const replaceInTo = TypeOfWayPoint.ACTIVITYS.includes(isTypeAvailability);
 
-  const repeatingTransfersMarkup = createRepeatingTransferMarkup(TypeOfWaypoint.TRANSFERS, isTypeAvailability);
+  const repeatingTransfersMarkup = createRepeatingTransferMarkup(TypeOfWayPoint.TRANSFERS, isTypeAvailability);
 
-  const repeatingActivityMarkup = createRepeatingActivityMarkup(TypeOfWaypoint.ACTIVITYS, isTypeAvailability, countCard);
+  const repeatingActivityMarkup = createRepeatingActivityMarkup(TypeOfWayPoint.ACTIVITYS, isTypeAvailability, countCard);
   const repeatingPhotoMarkup = createRepeatingPhotoMarkup(photosCount);
 
   const deleteButtonText = externalData.deleteButtonText;
@@ -161,7 +161,7 @@ const createEditFormTemplate = (card, countCard, distonations, attributes = {}) 
           <div class="event__type-wrapper">
             <label class="event__type  event__type-btn" for="event-type-toggle-${countCard}">
               <span class="visually-hidden">Choose event type</span>
-              <img class="event__type-icon" width="17" height="17" src="img/icons/${isTypeAvailability}.png" alt="Event type icon">
+              <img class="event__type-icon" width="17" height="17" src="img/icons/${randomWayPointItem.toLowerCase()}.png" alt="Event type icon">
             </label>
             <input class="event__type-toggle  visually-hidden" id="event-type-toggle-${countCard}" type="checkbox">
 
@@ -283,7 +283,7 @@ export default class EditForm extends AbstractSmartComponent {
     this._offersApi = offers;
 
     this._city = cards.city;
-    this._typeOfWaypoints = cards.typeOfWaypoints;
+    this._typeOfWayPoints = cards.typeOfWayPoints;
     this._description = cards.description;
     this._startDate = cards.startDate;
     this._endDate = cards.endDate;
@@ -291,7 +291,7 @@ export default class EditForm extends AbstractSmartComponent {
     this._price = cards.price;
     this._photosCount = cards.photosCount;
     this._isFavorite = cards.isFavorite;
-    this._randomWaypointItem = cards.randomWaypointItem;
+    this._randomWayPointItem = cards.randomWayPointItem;
 
     this._externalData = DefaultData;
 
@@ -301,22 +301,31 @@ export default class EditForm extends AbstractSmartComponent {
     this._btnClickCloseHandler = null;
     this._flatpickrStartDate = null;
     this._flatpickrEndDate = null;
+    this._dataoOffers = null;
+    this._newOffers = null;
+    this._startOldDate = null;
+    this._endOldDate = null;
 
+    this._updateOffers();
     this._subscribeOnEvents();
     this._applyFlatpickr();
   }
 
   getTemplate() {
-    return createEditFormTemplate(this._cards, this._countCard, this._distonationApi, {
+    return createEditFormTemplate(this._cards, {
+      countCard: this._countCard,
       city: this._city,
       description: this._description,
       offer: this._offer,
       isFavorite: this._isFavorite,
-      randomWaypointItem: this._randomWaypointItem,
+      randomWayPointItem: this._randomWayPointItem,
       photosCount: this._photosCount,
       startDate: this._startDate,
       endDate: this._endDate,
       externalData: this._externalData,
+      dataoOffers: this._dataoOffers,
+      distonations: this._distonationApi,
+      price: this._price,
     });
   }
 
@@ -327,17 +336,15 @@ export default class EditForm extends AbstractSmartComponent {
     this._description = cards.description;
     this._city = cards.city;
     this._isFavorite = cards.isFavorite;
-    this._randomWaypointItem = cards.randomWaypointItem;
-    this._startDate = cards.startDate;
-    this._endDate = cards.endDate;
+    this._randomWayPointItem = cards.randomWayPointItem;
 
     this.rerender();
   }
 
   rerender() {
     super.rerender();
-    this._applyFlatpickr();
     this._validationForm();
+    this._applyFlatpickr();
   }
 
   recoveryListeners() {
@@ -360,6 +367,7 @@ export default class EditForm extends AbstractSmartComponent {
     .forEach((selectElements) => {
       selectElements.forEach((element) => {
         element.disabled = isActive;
+        element.checked = !isActive;
       });
     });
   }
@@ -386,7 +394,7 @@ export default class EditForm extends AbstractSmartComponent {
   }
 
   setFavoritesInputClickHandler(handler) {
-    this.getElement().querySelector(`.event__favorite-icon`)
+    this.getElement().querySelector(`.event__favorite-checkbox`)
       .addEventListener(`click`, handler);
 
     this._favoriteClickHandler = handler;
@@ -445,7 +453,7 @@ export default class EditForm extends AbstractSmartComponent {
 
   _validationForm() {
 
-    if (Date.parse(this._startDate) >= Date.parse(this._endDate)) {
+    if (new Date(moment(this._startDate, `DD/MM/YY hh:mm`).valueOf()) >= new Date(moment(this._endDate, `DD/MM/YY hh:mm`).valueOf())) {
       const inputEndTime = this.getElement().querySelector(`#event-end-time-${this._countCard}`);
       const divTime = this.getElement().querySelector(`.event__field-group--time`);
       divTime.style.border = `2px solid red`;
@@ -469,14 +477,17 @@ export default class EditForm extends AbstractSmartComponent {
     const inputDestinationElement = element.querySelector(`.event__input--destination`);
     const inputStartTime = element.querySelector(`#event-start-time-${this._countCard}`);
     const inputEndTime = element.querySelector(`#event-end-time-${this._countCard}`);
+    const inputPrice = element.querySelector(`.event__input--price`);
 
     typeListElement.addEventListener(`click`, (evt) => {
       if (evt.target.tagName === `INPUT`) {
-        this._randomWaypointItem = evt.target.value;
+        this._randomWayPointItem = evt.target.value;
 
         this._offer = this._offersApi
-        .find((offerApi) => offerApi.type === this._randomWaypointItem)
+        .find((offerApi) => offerApi.type === this._randomWayPointItem)
         .offers;
+        this._updateOffers();
+
         this.rerender();
       }
     });
@@ -497,17 +508,68 @@ export default class EditForm extends AbstractSmartComponent {
         this._photosCount = [];
       }
 
+      this._updateOffers();
+      this._updateNewOffers();
       this.rerender();
     });
 
-    inputStartTime.addEventListener(`change`, () => {
-      this._startDate = new Date(moment(inputStartTime.value, `DD/MM/YY hh:mm`).valueOf());
+    inputStartTime.addEventListener(`change`, (evt) => {
+      this._startDate = evt.target.value;
+
+      this._updateOffers();
+      this._updateNewOffers();
       this.rerender();
     });
 
-    inputEndTime.addEventListener(`change`, () => {
-      this._endDate = new Date(moment(inputEndTime.value, `DD/MM/YY hh:mm`).valueOf());
+    inputEndTime.addEventListener(`change`, (evt) => {
+      this._endDate = evt.target.value;
+
+      this._updateOffers();
+      this._updateNewOffers();
       this.rerender();
+    });
+
+    inputPrice.addEventListener(`change`, (evt) => {
+      this._price = evt.target.value;
     });
   }
+
+  _updateOffers() {
+    const dataApi = this._offersApi.find((offerApi) => {
+      return offerApi.type === this._randomWayPointItem.toLowerCase();
+    });
+
+    dataApi.offers.forEach((offerApi) => {
+      offerApi.check = false;
+      this._offer.map((offer) => {
+        if (offerApi.title === offer.title) {
+          offerApi.check = true;
+          offer.check = false;
+        }
+      });
+    });
+
+    this._dataoOffers = dataApi.offers;
+  }
+
+  _updateNewOffers() {
+    this._newOffers = [];
+    const offersElement = this.getElement().querySelectorAll(`.event__offer-checkbox:checked + label[for^="event"]`);
+
+    offersElement.forEach((offer) => {
+      this._newOffers.push({
+        title: offer.querySelector(`.event__offer-title`).textContent,
+        price: Number(offer.querySelector(`.event__offer-price`).textContent),
+      });
+    });
+
+    this._offer.forEach((offer) => {
+      this._newOffers.map((newOffer) => {
+        if (offer.title === newOffer.title) {
+          offer.check = true;
+        }
+      });
+    });
+  }
+
 }

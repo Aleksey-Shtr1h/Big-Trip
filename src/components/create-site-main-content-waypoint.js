@@ -3,7 +3,7 @@ import AbstractComponent from './abstract-component.js';
 
 import {getDuration} from '../utils/common.js';
 
-import {TypeOfWaypoint} from '../constants.js';
+import {TypeOfWayPoint} from '../constants.js';
 
 const START_OFFERS = 0;
 const COUNT_OFFERS = 3;
@@ -21,10 +21,10 @@ const createRepeatingOffersMarkup = (options) => {
   }).join(`\n \n`);
 };
 
-const createWaypointItemTemplate = (card) => {
-  const {city, startDate, endDate, offer, price, randomWaypointItem} = card;
+const createWayPointItemTemplate = (card) => {
+  const {city, startDate, endDate, offer, price, randomWayPointItem} = card;
 
-  const replaceInTo = TypeOfWaypoint.ACTIVITYS.includes(randomWaypointItem);
+  const replaceInTo = TypeOfWayPoint.ACTIVITYS.includes(randomWayPointItem);
 
   const repeatingOffersMarkup = createRepeatingOffersMarkup(offer);
   const eventDuration = getDuration(startDate, endDate);
@@ -34,9 +34,9 @@ const createWaypointItemTemplate = (card) => {
       <div class="event">
 
         <div class="event__type">
-          <img class="event__type-icon" width="42" height="42" src="img/icons/${randomWaypointItem.toLowerCase()}.png" alt="Event type icon">
+          <img class="event__type-icon" width="42" height="42" src="img/icons/${randomWayPointItem.toLowerCase()}.png" alt="Event type icon">
         </div>
-        <h3 class="event__title">${randomWaypointItem} ${replaceInTo ? `in` : `to`} ${city}</h3>
+        <h3 class="event__title">${randomWayPointItem} ${replaceInTo ? `in` : `to`} ${city}</h3>
 
         <div class="event__schedule">
           <p class="event__time">
@@ -64,14 +64,14 @@ const createWaypointItemTemplate = (card) => {
   );
 };
 
-export default class WaypointItem extends AbstractComponent {
+export default class WayPointItem extends AbstractComponent {
   constructor(cards) {
     super();
     this._cards = cards;
   }
 
   getTemplate() {
-    return createWaypointItemTemplate(this._cards);
+    return createWayPointItemTemplate(this._cards);
   }
 
   setBtnClickHandler(handler) {

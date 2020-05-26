@@ -7,7 +7,7 @@ const createInfoContainerTemplate = () => {
   );
 };
 
-export default class InfoContainer extends AbstractComponent {
+export default class ContainerInfo extends AbstractComponent {
 
   getTemplate() {
     return createInfoContainerTemplate();

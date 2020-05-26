@@ -4,8 +4,8 @@ import PointModel from "../model/event-point-model.js";
 import DistonationModel from "../model/event-distonation-model.js";
 import OfferModel from "../model/event-offer-model.js";
 
-import MainEditFormComponent from '../components/create-site-maintContent-edit-form.js';
-import MainWaypointItemComponent from '../components/create-site-maintContent-waypoint.js';
+import MainEditFormComponent from '../components/create-site-main-content-edit-form.js';
+import MainWayPointItemComponent from '../components/create-site-main-content-waypoint.js';
 
 import {renderTemplate, RenderPosition, raplaceElement, remove} from '../utils/render.js';
 import {getCapitalizeFirstLetter} from '../utils/common.js';
@@ -33,10 +33,10 @@ export const EmptyCard = {
   price: 0,
   photosCount: [],
   isFavorite: false,
-  randomWaypointItem: ``,
+  randomWayPointItem: ``,
 };
 
-const parseFormData = (formDate, form, idCard) => {
+const parseFormData = (formDate, form) => {
   const picturesAll = [];
   const offersAll = [];
   const picturesElement = form.querySelectorAll(`.event__photo`);
@@ -72,7 +72,7 @@ const parseFormData = (formDate, form, idCard) => {
 
     },
 
-    'id': String(idCard + 1),
+    'id': String(new Date() + Math.random()),
 
     'is_favorite': form.querySelector(`.event__favorite-checkbox`).checked ? true : false,
     'offers': offersAll,
@@ -91,25 +91,23 @@ export default class TripCardController {
     this._onViewChange = onViewChange;
     this._mode = Modes.DEFAULT;
 
-    this._waypointItemComponent = null;
+    this._wayPointItemComponent = null;
     this._editFormComponent = null;
-    this._idCard = null;
 
     this._onEscKeyDown = this._onEscKeyDown.bind(this);
   }
 
   renderTripCard(card, countCard, mode) {
-    this._idCard = this._idCard < Number(card.id) ? Number(card.id) : this._idCard;
-    const oldTaskComponent = this._waypointItemComponent;
+    const oldTaskComponent = this._wayPointItemComponent;
     const oldTaskEditComponent = this._editFormComponent;
     this._mode = mode;
 
     this._replaceEmptyCard();
 
-    this._waypointItemComponent = new MainWaypointItemComponent(card);
+    this._wayPointItemComponent = new MainWayPointItemComponent(card);
     this._editFormComponent = new MainEditFormComponent(card, countCard, this._distonation, this._offers);
 
-    this._waypointItemComponent.setBtnClickHandler(() => {
+    this._wayPointItemComponent.setBtnClickHandler(() => {
       this._replaceCardToFormCard();
       document.addEventListener(`keydown`, this._onEscKeyDown);
     });
@@ -123,7 +121,7 @@ export default class TripCardController {
       evt.preventDefault();
 
       const formUser = this._editFormComponent.getData();
-      const data = parseFormData(formUser.formData, formUser.form, this._idCard);
+      const data = parseFormData(formUser.formData, formUser.form);
 
       this._editFormComponent.setData({
         saveButtonText: `Saving...`,
@@ -134,6 +132,10 @@ export default class TripCardController {
     this._editFormComponent.setFavoritesInputClickHandler(() => {
       const newCard = PointModel.clone(card);
       newCard.isFavorite = !newCard.isFavorite;
+
+      this._editFormComponent.setData({
+        saveButtonText: `Saving...`,
+      });
 
       this._onDataChange(this, card, newCard);
     });
@@ -149,11 +151,11 @@ export default class TripCardController {
     switch (mode) {
       case Modes.DEFAULT:
         if (oldTaskEditComponent && oldTaskComponent) {
-          raplaceElement(this._waypointItemComponent, oldTaskComponent);
+          raplaceElement(this._wayPointItemComponent, oldTaskComponent);
           raplaceElement(this._editFormComponent, oldTaskEditComponent);
           this._replaceFormCardToCard();
         } else {
-          renderTemplate(this._container, this._waypointItemComponent, RenderPosition.BEFOREEND);
+          renderTemplate(this._container, this._wayPointItemComponent, RenderPosition.BEFOREEND);
         }
         break;
       case Modes.ADDING:
@@ -180,17 +182,17 @@ export default class TripCardController {
 
   destroy() {
     remove(this._editFormComponent);
-    remove(this._waypointItemComponent);
+    remove(this._wayPointItemComponent);
     document.removeEventListener(`keydown`, this._onEscKeyDown);
   }
 
   shake() {
     this._editFormComponent.getElement().style.animation = `shake ${SHAKE_ANIMATION_TIMEOUT / 1000}s`;
-    this._waypointItemComponent.getElement().style.animation = `shake ${SHAKE_ANIMATION_TIMEOUT / 1000}s`;
+    this._wayPointItemComponent.getElement().style.animation = `shake ${SHAKE_ANIMATION_TIMEOUT / 1000}s`;
 
     setTimeout(() => {
       this._editFormComponent.getElement().style.animation = ``;
-      this._waypointItemComponent.getElement().style.animation = ``;
+      this._wayPointItemComponent.getElement().style.animation = ``;
 
       this._editFormComponent.setData({
         saveButtonText: `Save`,
@@ -201,14 +203,13 @@ export default class TripCardController {
   }
 
   _replaceEmptyCard() {
-    EmptyCard.id = String(this._idCard + 1);
     EmptyCard.offer = this._offers.find((offerApi) => offerApi.type === `flight`).offers;
-    EmptyCard.randomWaypointItem = this._offers.find((offerApi) => offerApi.type === `flight`).type;
+    EmptyCard.randomWayPointItem = this._offers.find((offerApi) => offerApi.type === `flight`).type;
   }
 
   _replaceCardToFormCard() {
     this._onViewChange();
-    raplaceElement(this._editFormComponent, this._waypointItemComponent);
+    raplaceElement(this._editFormComponent, this._wayPointItemComponent);
     this._mode = Modes.EDIT;
   }
 
@@ -217,7 +218,7 @@ export default class TripCardController {
     this._editFormComponent.reset();
 
     if (document.contains(this._editFormComponent.getElement())) {
-      raplaceElement(this._waypointItemComponent, this._editFormComponent);
+      raplaceElement(this._wayPointItemComponent, this._editFormComponent);
     }
 
     this._mode = Modes.DEFAULT;

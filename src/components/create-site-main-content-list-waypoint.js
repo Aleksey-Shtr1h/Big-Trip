@@ -1,16 +1,16 @@
 import AbstractComponent from './abstract-component.js';
 
-const createListWaypointTemplate = () => {
+const createListWayPointTemplate = () => {
   return (
     `<ul class="trip-events__list">
     </ul>`
   );
 };
 
-export default class ListWaypoint extends AbstractComponent {
+export default class ListWayPoint extends AbstractComponent {
 
   getTemplate() {
-    return createListWaypointTemplate();
+    return createListWayPointTemplate();
   }
 
 }

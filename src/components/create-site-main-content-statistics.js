@@ -20,18 +20,18 @@ const getStatResult = (cards, qwer) => {
   const caseResult = {
     [StatisticsLegend.TIME]: ((distanation) => {
       return cards.filter((card) => {
-        return card.randomWaypointItem.toLowerCase() === distanation.toLowerCase();
+        return card.randomWayPointItem.toLowerCase() === distanation.toLowerCase();
       })
       .reduce((sum, value) => sum + Math.round(moment.duration(value.endDate - value.startDate) / (60 * 60 * 1000)), 0);
     }),
     [StatisticsLegend.TRANSPORT]: ((distanation) => {
       return cards.filter((card) => {
-        return card.randomWaypointItem.toLowerCase() === distanation.toLowerCase();
+        return card.randomWayPointItem.toLowerCase() === distanation.toLowerCase();
       }).length;
     }),
     [StatisticsLegend.MONEY]: ((distanation) => {
       return cards.filter((card) => {
-        return card.randomWaypointItem.toLowerCase() === distanation.toLowerCase();
+        return card.randomWayPointItem.toLowerCase() === distanation.toLowerCase();
       })
       .reduce((totalPrice, itemOf) => {
         return totalPrice + itemOf.price;
@@ -42,7 +42,7 @@ const getStatResult = (cards, qwer) => {
 };
 
 const renderChart = (typeCtx, cards, legend, sign, positionSign = true) => {
-  const distanations = [...new Set(cards.map((card) => card.randomWaypointItem.toUpperCase()))];
+  const distanations = [...new Set(cards.map((card) => card.randomWayPointItem.toUpperCase()))];
   return new Chart(typeCtx, {
     plugins: [ChartDataLabels],
     type: `horizontalBar`,

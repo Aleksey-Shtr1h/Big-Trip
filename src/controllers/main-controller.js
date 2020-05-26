@@ -1,25 +1,25 @@
 import API from '../api.js';
 
 import CardsModel from '../model/event-card-model.js';
-import TripDaysController from '../controllers/tripDays.js';
-import FilterController from '../controllers/filterCards.js';
+import TripDaysController from '../controllers/trip-days-controller.js';
+import FilterCardsController from '../controllers/filter-cards-controller.js';
 
-import InfoContainerComponent from '../components/create-site-header-containerInfo.js';
+import ContainerInfoComponent from '../components/create-site-header-container-info.js';
 import HeaderInfoTripComponent from '../components/create-site-header-trip-info.js';
 import HeaderCostTripComponent from '../components/create-site-header-trip-cost.js';
 import HeaderSiteMenuComponent, {MenuItem} from '../components/create-site-header-trip-menu.js';
 
-import MainNoPointsComponent from '../components/create-site-maintContent-no-points.js';
-import MainTripDaysListComponent from '../components/create-site-maintContent-listDay.js';
-import StatisticsSiteComponent from '../components/create-site-maintContent-statistics.js';
+import MainNoPointsComponent from '../components/create-site-main-content-no-points.js';
+import MainTripDaysListComponent from '../components/create-site-main-content-list-day.js';
+import StatisticsSiteComponent from '../components/create-site-main-content-statistics.js';
 
 import {renderTemplate, RenderPosition, remove} from '../utils/render.js';
 
 const headerElement = document.querySelector(`.page-header`);
 const headerTripMainElement = headerElement.querySelector(`.trip-main`);
 const headerTripControlsElement = headerElement.querySelector(`.trip-controls`);
-const pageBodyContainer = document.querySelector(`.page-body__page-main .page-body__container`);
-const mainTripEventsElement = pageBodyContainer.querySelector(`.trip-events`);
+const pageBodyContainerElement = document.querySelector(`.page-body__page-main .page-body__container`);
+const mainTripEventsElement = pageBodyContainerElement.querySelector(`.trip-events`);
 
 const AUTHORIZATION = `Basic dXNlckBwYXNzd29yZAo=`;
 const END_POINT = `https://11.ecmascript.pages.academy/big-trip`;
@@ -34,7 +34,7 @@ export default class MainController {
     this._statisticsSiteComponent = new StatisticsSiteComponent(this._cardsModel);
     this._noPointsComponent = new MainNoPointsComponent();
 
-    this._filterController = new FilterController(headerTripControlsElement, this._cardsModel);
+    this._filterCardsController = new FilterCardsController(headerTripControlsElement, this._cardsModel);
     this._tripDaysController = new TripDaysController(this._tripDaysListComponent, this._cardsModel, this._api);
 
     this._changePriceHandler = this._changePriceHandler.bind(this);
@@ -42,7 +42,7 @@ export default class MainController {
   }
 
   renderMainController() {
-    renderTemplate(headerTripMainElement, new InfoContainerComponent(), RenderPosition.AFTERBEGIN);
+    renderTemplate(headerTripMainElement, new ContainerInfoComponent(), RenderPosition.AFTERBEGIN);
 
     renderTemplate(headerTripControlsElement, this._siteMenuComponent, RenderPosition.AFTERBEGIN);
     this._navigationControl();
@@ -50,19 +50,13 @@ export default class MainController {
     this._api.getData()
     .then((cards) => {
       this._cardsModel.setCards(cards);
-      this._filterController.renderFilter();
+      this._filterCardsController.renderFilter();
       this._changePriceHandler();
 
-      if (!cards.length) {
-        renderTemplate(mainTripEventsElement, this._tripDaysListComponent, RenderPosition.BEFOREEND);
-        renderTemplate(mainTripEventsElement, this._noPointsComponent, RenderPosition.BEFOREEND);
-        this._tripDaysController.renderDays();
+      renderTemplate(mainTripEventsElement, this._tripDaysListComponent, RenderPosition.BEFOREEND);
+      this._tripDaysController.renderDays();
 
-      } else {
-        renderTemplate(mainTripEventsElement, this._tripDaysListComponent, RenderPosition.BEFOREEND);
-        this._tripDaysController.renderDays();
-      }
-      renderTemplate(pageBodyContainer, this._statisticsSiteComponent, RenderPosition.BEFOREEND);
+      renderTemplate(pageBodyContainerElement, this._statisticsSiteComponent, RenderPosition.BEFOREEND);
       this._statisticsSiteComponent.hide();
     });
   }

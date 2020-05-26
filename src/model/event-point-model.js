@@ -11,7 +11,7 @@ export default class Card {
     this.price = data[`base_price`];
     this.photosCount = data[`destination`][`pictures`];
     this.isFavorite = Boolean(data[`is_favorite`]);
-    this.randomWaypointItem = getCapitalizeFirstLetter(data[`type`]);
+    this.randomWayPointItem = getCapitalizeFirstLetter(data[`type`]);
   }
 
   toRAW() {
@@ -27,7 +27,7 @@ export default class Card {
       'id': this.id,
       'is_favorite': this.isFavorite,
       'offers': this.offer,
-      'type': getCapitalizeFirstLetter(this.randomWaypointItem, false),
+      'type': getCapitalizeFirstLetter(this.randomWayPointItem, false),
     };
 
     return adapterCard;

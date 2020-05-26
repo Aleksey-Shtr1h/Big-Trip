@@ -2,8 +2,8 @@ import AbstractComponent from './abstract-component.js';
 
 const getInfoPrice = (cards) => {
   let sumAll = 0;
-  cards.map((elem) => {
-    sumAll += elem.price + elem.offer.reduce((sum, value) => {
+  cards.map((card) => {
+    sumAll += card.price + card.offer.reduce((sum, value) => {
       return sum + value.price;
     }, 0);
   });

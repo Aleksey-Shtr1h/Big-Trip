@@ -33,8 +33,8 @@ const createSortOptionMarkup = (option, isChecked) => {
 
 const createSortTripTemplate = (sortOptions) => {
 
-  const sortOptionMarkup = sortOptions.map((it) => {
-    return createSortOptionMarkup(it, it.checked);
+  const sortOptionMarkup = sortOptions.map((sortOption) => {
+    return createSortOptionMarkup(sortOption, sortOption.checked);
   }).join(`\n \n`);
 
   return (
