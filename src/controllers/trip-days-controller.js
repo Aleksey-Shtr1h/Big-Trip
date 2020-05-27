@@ -247,7 +247,7 @@ export default class TripDaysController {
   }
 
   _onViewChange() {
-    this._showedCardControllers.forEach((it) => it.setDefaultView());
+    this._showedCardControllers.forEach((cardController) => cardController.setDefaultView());
   }
 
   _onSortTypeChange(sortType) {

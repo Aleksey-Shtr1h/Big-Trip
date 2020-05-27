@@ -32,7 +32,7 @@ export default class CardsModel {
   }
 
   removeCards(id) {
-    const index = this._cards.findIndex((it) => it.id === id);
+    const index = this._cards.findIndex((cardEvent) => cardEvent.id === id);
 
     if (index === -1) {
       return false;
@@ -46,7 +46,7 @@ export default class CardsModel {
   }
 
   updateCards(id, card) {
-    const index = this._cards.findIndex((it) => it.id === id);
+    const index = this._cards.findIndex((cardEvent) => cardEvent.id === id);
 
     if (index === -1) {
       return false;
