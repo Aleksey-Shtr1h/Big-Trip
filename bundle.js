@@ -26511,7 +26511,7 @@ class API {
   }
 
   getCards() {
-    return this._load({url: `points`})
+    return this._load({ url: `points` })
       .then((response) => response.json())
       .then((data) => _model_event_point_model_js__WEBPACK_IMPORTED_MODULE_0__["default"].parseCards(data));
   }
@@ -26521,7 +26521,7 @@ class API {
       url: `points/${id}`,
       method: Method.PUT,
       body: JSON.stringify(data.toRAW()),
-      headers: new Headers({"Content-Type": `application/json`})
+      headers: new Headers({ "Content-Type": `application/json` })
     })
       .then((response) => response.json())
       .then(_model_event_point_model_js__WEBPACK_IMPORTED_MODULE_0__["default"].parseCard);
@@ -26532,18 +26532,18 @@ class API {
       url: `points`,
       method: Method.POST,
       body: JSON.stringify(data.toRAW()),
-      headers: new Headers({"Content-Type": `application/json`})
+      headers: new Headers({ "Content-Type": `application/json` })
     })
       .then((response) => response.json())
       .then(_model_event_point_model_js__WEBPACK_IMPORTED_MODULE_0__["default"].parseCard);
   }
 
   deleteCard(id) {
-    return this._load({url: `points/${id}`, method: Method.DELETE});
+    return this._load({ url: `points/${id}`, method: Method.DELETE });
   }
 
   getData() {
-    const requests = Urls.map((nameUrl) => this._load({url: nameUrl}));
+    const requests = Urls.map((nameUrl) => this._load({ url: nameUrl }));
     return Promise.all(requests)
       .then((responses) => Promise.all(responses
         .map((response) => response.json())))
@@ -26555,10 +26555,10 @@ class API {
       });
   }
 
-  _load({url, method = Method.GET, body = null, headers = new Headers()}) {
+  _load({ url, method = Method.GET, body = null, headers = new Headers() }) {
     headers.append(`Authorization`, this._authorization);
 
-    return fetch(`${this._endPoint}/${url}`, {method, body, headers})
+    return fetch(`${this._endPoint}/${url}`, { method, body, headers })
       .then(checkStatus)
       .catch((err) => {
         throw err;
@@ -28297,17 +28297,17 @@ class MainController {
     this._navigationControl();
 
     this._api.getData()
-    .then((cards) => {
-      this._cardsModel.setCards(cards);
-      this._filterCardsController.renderFilter();
-      this._changePriceHandler();
+      .then((cards) => {
+        this._cardsModel.setCards(cards);
+        this._filterCardsController.renderFilter();
+        this._changePriceHandler();
 
-      Object(_utils_render_js__WEBPACK_IMPORTED_MODULE_11__["renderTemplate"])(mainTripEventsElement, this._tripDaysListComponent, _utils_render_js__WEBPACK_IMPORTED_MODULE_11__["RenderPosition"].BEFOREEND);
-      this._tripDaysController.renderDays();
+        Object(_utils_render_js__WEBPACK_IMPORTED_MODULE_11__["renderTemplate"])(mainTripEventsElement, this._tripDaysListComponent, _utils_render_js__WEBPACK_IMPORTED_MODULE_11__["RenderPosition"].BEFOREEND);
+        this._tripDaysController.renderDays();
 
-      Object(_utils_render_js__WEBPACK_IMPORTED_MODULE_11__["renderTemplate"])(pageBodyContainerElement, this._statisticsSiteComponent, _utils_render_js__WEBPACK_IMPORTED_MODULE_11__["RenderPosition"].BEFOREEND);
-      this._statisticsSiteComponent.hide();
-    });
+        Object(_utils_render_js__WEBPACK_IMPORTED_MODULE_11__["renderTemplate"])(pageBodyContainerElement, this._statisticsSiteComponent, _utils_render_js__WEBPACK_IMPORTED_MODULE_11__["RenderPosition"].BEFOREEND);
+        this._statisticsSiteComponent.hide();
+      });
   }
 
   _navigationControl() {
@@ -28838,42 +28838,42 @@ class TripDaysController {
         this._updateCards();
       } else {
         this._api.createCard(newData)
-        .then((cardModel) => {
+          .then((cardModel) => {
 
-          this._cardsModel.addCards(cardModel);
+            this._cardsModel.addCards(cardModel);
 
-          cardController.renderTripCard(cardModel, -1, _trip_cards_controller_js__WEBPACK_IMPORTED_MODULE_1__["Modes"].DEFAULT);
+            cardController.renderTripCard(cardModel, -1, _trip_cards_controller_js__WEBPACK_IMPORTED_MODULE_1__["Modes"].DEFAULT);
 
-          const destroyedCards = this._showedCardControllers.pop();
-          destroyedCards.destroy();
+            const destroyedCards = this._showedCardControllers.pop();
+            destroyedCards.destroy();
 
-          this._showedCardControllers = [].concat(cardController, this._showedCardControllers);
+            this._showedCardControllers = [].concat(cardController, this._showedCardControllers);
+            this._updateCards();
+          })
+          .catch(() => {
+            cardController.shake();
+          });
+      }
+    } else if (newData === null) {
+      this._api.deleteCard(oldData.id)
+        .then(() => {
+          this._cardsModel.removeCards(oldData.id);
           this._updateCards();
         })
         .catch(() => {
           cardController.shake();
         });
-      }
-    } else if (newData === null) {
-      this._api.deleteCard(oldData.id)
-      .then(() => {
-        this._cardsModel.removeCards(oldData.id);
-        this._updateCards();
-      })
-      .catch(() => {
-        cardController.shake();
-      });
     } else {
       this._api.updateCard(oldData.id, newData)
-      .then((cardModel) => {
-        const isSuccess = this._cardsModel.updateCards(oldData.id, cardModel);
-        if (isSuccess) {
-          this._updateCards();
-        }
-      })
-      .catch(() => {
-        cardController.shake();
-      });
+        .then((cardModel) => {
+          const isSuccess = this._cardsModel.updateCards(oldData.id, cardModel);
+          if (isSuccess) {
+            this._updateCards();
+          }
+        })
+        .catch(() => {
+          cardController.shake();
+        });
     }
   }
 
